@@ -1,0 +1,6 @@
+###Simulation to compare the dynamics of systems with and without stable states
+###Idea = AMEllison
+###Code = MKLau
+
+###Use Bob May's classic logistic growth parameterization
+
