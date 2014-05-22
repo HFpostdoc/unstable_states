@@ -13,4 +13,8 @@ Variables
 - number of alphas
 - alpha step size
 - generation time
+- N vs X
 
+Response
+- look at transient dynamics
+- look at oscillating dynamics
