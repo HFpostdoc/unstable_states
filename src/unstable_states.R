@@ -42,3 +42,40 @@ N <- N.a3.571;plot(N,cex=0.5,pch=19);plot(N[2:nrow(N),2]~N[1:(nrow(N)-1),2],xlab
 N <- N.a3.700;plot(N,cex=0.5,pch=19);plot(N[2:nrow(N),2]~N[1:(nrow(N)-1),2],xlab='Nt',ylab='Nt+1')
 dev.off()
 
+###Use the quadratic recurrence equation (or quadratic map) which May develops by defining X = bN/a
+##Use the r notation that is more common now instead of a
+
+##From dN/dt = rN(K-N) / K, setting x = N/K yields
+##dx/dt = rx(1-x) and
+##xt+1 = rxt (1-xt)
+
+plot.phase <- function(x,col=1){
+  plot(x[2:nrow(x),2]~x[1:(nrow(x)-1),2],col=col)
+}
+
+lines.phase <- function(x,col=1){
+  lines(spline(x[2:nrow(x),2]~x[1:(nrow(x)-1),2]),col=col)
+}
+
+points.phase <- function(x,col=1){
+  points(x[2:nrow(x),2]~x[1:(nrow(x)-1),2],col=col)
+}
+
+
+qre <- function(x0=0.1,r=2,tf=500,ts=1){
+  t <- seq(0,tf,by=ts)
+  out <- t*0
+  out[1] <- x0
+  for (i in 2:length(out)){out[i] <- r*out[i-1]*(1-out[i-1])}
+  out <- cbind(Time=t,X=out)
+  out
+}
+
+##Re-creating May 1976 Fig 1
+png('../results/qre_phase.png',width=500,height=500,pointsize=15)
+plot(c(0,1),c(0,1),type='l',xlab=expression('X'['t']),ylab=expression('X'['t+1']))
+points.phase(qre(x0=0.0001,r=2.707,tf=100,ts=0.1))
+lines.phase(qre(x0=0.0001,r=2.707,tf=100,ts=0.1))
+points.phase(qre(x0=0.0001,r=3.414,tf=100,ts=0.1))
+lines.phase(qre(x0=0.0001,r=3.414,tf=100,ts=0.1))
+dev.off()
