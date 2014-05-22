@@ -9,7 +9,7 @@
 ##dx/dt = rx(1-x) and
 ##xt+1 = rxt (1-xt)
 
-qre <- function(x0=0.1,r=2,tf=500,ts=1){
+qre <- function(x0=0.1,r=2,tf=100,ts=1){
   t <- seq(0,tf,by=ts)
   out <- t*0
   out[1] <- x0
@@ -19,8 +19,10 @@ qre <- function(x0=0.1,r=2,tf=500,ts=1){
 }
 
 ###plots the phase space xt+1 ~ xt
-plot.phase <- function(x,col=1){
-  plot(x[2:nrow(x),2]~x[1:(nrow(x)-1),2],col=col)
+plot.phase <- function(x,col=1,pch=19,cex=0.75){
+  plot(x[2:nrow(x),2]~x[1:(nrow(x)-1),2],
+       col=col,pch=pch,cex=cex,
+       xlab=expression('x'['t']),ylab=expression('x'['t+1']))
 }
 
 ###plots lines for the phase space using spline
