@@ -1,6 +1,7 @@
 ###Simulation to compare the dynamics of systems with and without stable states
 ###Idea = AMEllison
 ###Code = MKLau
+###Initiated 21May2014
 
 ##Using Bob May's logistic growth parameterization for ecosystems
 ##Using the quadratic recurrence equation (or quadratic map) which May develops by defining X = bN/a
@@ -16,6 +17,24 @@ qre <- function(x0=0.1,r=2,tf=100,ts=1){
   for (i in 2:length(out)){out[i] <- r*out[i-1]*(1-out[i-1])}
   out <- cbind(Time=t,X=out)
   out
+}
+
+###Basic simulation
+###simSS = simulate system state changes given a logistic difference model
+simSS <- function(x0,r1,r2,n,ramp=FALSE,step=0.1){
+                                        #set the start points for state transitions
+  nf1 <- round(n/2,0)
+  nf2 <- nf1 + 1
+  out <- list()
+  if (ramp){}else{
+    out[[1]] <- qre(x0=x0,r=r1,tf=(nf1 + 1),ts=1)
+    out[[2]] <- qre(x0=out[[1]][nrow(out[[1]]),2],r=r2,tf=length(1:nf2),ts=1)[-1,]
+    out[[1]][,1] <- out[[1]][,1] 
+    out[[2]][,1] <- out[[2]][,1] + (out[[1]][nrow(out[[1]]),1])
+    out <- do.call(rbind,out)
+    colnames(out) <- c('t','x')
+  }
+  return(out)
 }
 
 ###plots the phase space xt+1 ~ xt
