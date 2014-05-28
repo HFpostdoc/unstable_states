@@ -5,6 +5,10 @@
 source('../src/unstable_states.R')
 library('YaleToolkit')
 
+###
+runmod(1,100,FUN=function(x) allee(x,a=2))
+runmod(1,100,FUN=function(x) qre(x))
+
 ###Conducting simulations
 n.sim <- 150
 n.x0 <- 25
