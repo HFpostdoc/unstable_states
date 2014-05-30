@@ -1,6 +1,10 @@
 unstable_states
 ===============
 
+What theory or math can we use if stable states are the exception?
+
+What would theory look like if we don't start with a concept of stability?
+
 What do dynamics look like in systems without stable states?
 
 Using the logistic difference model of population growth developed by
