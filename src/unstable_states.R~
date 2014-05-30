@@ -10,6 +10,21 @@
 ##dx/dt = rx(1-x) and
 ##xt+1 = rxt (1-xt)
 
+###run model
+runmod <- function(Ni,t,FUN){
+  N <- Ni
+  for (i in 2:t){
+    N[i] <- N[i-1] + FUN(N[i-1])
+  }
+  N
+}
+
+###allee affect
+allee <- function(N,r=0.1,K=100,a=1){
+  r*N*(1-(N/K)-(a*(N^2)/K))
+}
+
+###
 qre <- function(x0=0.1,r=2,tf=100,ts=1){
   t <- seq(0,tf,by=ts)
   out <- t*0

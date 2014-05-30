@@ -3,7 +3,60 @@
 ###MKLau
 
 source('../src/unstable_states.R')
+library('fractal')
 library('YaleToolkit')
+
+###lvq = lotka volterra equations
+
+lvq <- function(N1=10,N2=10,r1=2,r2=2,K1=100,K2=90,a=0.5,b=0.5){
+  dn1 <- r1*N1-(N1^2*r1/K1)-(N1*N2*a*r1/K1)
+  dn2 <- r2*N2-(N2^2*r2/K2)-(N1*N2*b*r2/K2)
+  return(c(N1+dn1,N2+dn2))
+}
+
+while(2<3){
+t <- 100
+out <- matrix(rep(0,t*2),nrow=t)
+out[1,] <- c(sample(1:100,1),sample(1:100,1))
+pert <- c(1)
+r1 <- r2 <- 2
+for (i in 2:t){
+  if (sample(c(TRUE,FALSE),1,prob=c(0.01,0.99))){
+    out[i,] <- lvq(out[i-1,1]-(out[i-1,1]*runif(1,0,1)),
+                   out[i-1,2]-(out[i-1,2]*runif(1,0,1)),r1=r1,r2=r2)
+    pert[i] <- 2
+  }else{
+    out[i,] <- lvq(out[i-1,1],out[i-1,2],r1=r1,r2=r2)
+    pert[i] <- 1
+  }
+}
+par(mfrow=c(1,1))
+plot(out[,1],type='l',col=0,xlab='',ylab='',frame.plot=FALSE,xaxt='n',yaxt='n',ylim=c(0,max(out)))
+for (i in 1:nrow(out)){
+  points(i,out[i,1],col=pert[i])
+  points(i,out[i,2],col=pert[i],pch=19)
+}
+plot(out,type='l',col=0,xlab='',ylab='',frame.plot=FALSE,xaxt='n',yaxt='n')
+for (i in 1:nrow(out)){
+  points(out[i,1],out[i,2],col=pert[i]-1,pch=19)
+}
+for (i in 1:nrow(out)){
+  points(out[i,1],out[i,2],col=rainbow(nrow(out))[i],pch=19,cex=7)
+}
+for (i in 1:nrow(out)){
+  points(out[i,1],out[i,2],col=pert[i]-1,pch=19,cex=2)
+}
+}
+
+
+###
+while(2<3){
+  xy <- sample(1:3,2)
+  plot(lorenz[,xy],xaxt='n',yaxt='n',col=c('black','grey','white')[sample(1:3,1)],xlab='',ylab='',frame.plot=FALSE)
+  for (i in 2:nrow(lorenz)){
+    points(lorenz[i,xy[1]],lorenz[i,xy[2]],col=rainbow(nrow(lorenz))[i],pch=19)
+  }
+}
 
 ###
 runmod(1,100,FUN=function(x) allee(x,a=2))

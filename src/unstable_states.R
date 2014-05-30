@@ -10,6 +10,13 @@
 ##dx/dt = rx(1-x) and
 ##xt+1 = rxt (1-xt)
 
+###lvq = lotka volterra equations
+lvq <- function(N1=10,N2=10,r1=2,r2=2,K1=100,K2=90,a=0.5,b=0.5){
+  dn1 <- r1*N1-(N1^2*r1/K1)-(N1*N2*a*r1/K1)
+  dn2 <- r2*N2-(N2^2*r2/K2)-(N1*N2*b*r2/K2)
+  return(c(N1+dn1,N2+dn2))
+}
+
 ###run model
 runmod <- function(Ni,t,FUN){
   N <- Ni
