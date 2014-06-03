@@ -6,6 +6,51 @@ source('../src/unstable_states.R')
 library('fractal')
 library('YaleToolkit')
 
+###This formulation was taken from Gotelli 4th ed.
+grow <- function(r=2.570,N=10,K=100,tf=100){
+  for (t in 2:tf){
+    N[t] <- N[t-1] + r*N[t-1]*(1-N[t-1]/K)
+  }
+  return(N)
+}
+
+disrupt <- function(ri=1,rf=2,tf=1000,N=10,K=100,burn=100,dump=FALSE){
+  if (burn > tf){burn <- round(tf*0.25,2)}
+  r <- c(rep(ri,burn),seq(ri,rf,length=tf))
+  for (t in 2:burn){
+    N[t] <- N[t-1] + r[t]*N[t-1]*(1-N[t-1]/K)
+  }
+  for (t in burn:(burn+tf)){
+    N[t] <- N[t-1] + r[t]*N[t-1]*(1-N[t-1]/K)
+  }
+  if (dump){N <- data.frame(t=1:(burn+tf),r=r,N=N)}
+  return(N)
+}
+
+ri <- c(1.997,2.455,2.550,2.57)-(0.02/2)
+rf <- c(1.997,2.455,2.550,2.57)+(0.02/2)
+
+par(mfcol=c(2,4))
+plot(disrupt(ri=ri[1],rf=rf[1]),xlab='time',ylab='N')
+title(main=rf[1])
+plot(disrupt(ri=ri[1],rf=rf[1],dump=TRUE)$r,xlab='time',ylab='r')
+plot(disrupt(ri=ri[2],rf=rf[2]),xlab='time',ylab='N')
+title(main=rf[2])
+plot(disrupt(ri=ri[2],rf=rf[2],dump=TRUE)$r,xlab='time',ylab='r')
+plot(disrupt(ri=ri[3],rf=rf[3]),xlab='time',ylab='N')
+title(main=rf[3])
+plot(disrupt(ri=ri[3],rf=rf[3],dump=TRUE)$r,xlab='time',ylab='r')
+plot(disrupt(ri=ri[4],rf=rf[4]),xlab='time',ylab='N')
+title(main=rf[4])
+plot(disrupt(ri=ri[4],rf=rf[4],dump=TRUE)$r,xlab='time',ylab='r')
+
+###phases
+par(mfrow=c(2,2))
+for (i in 1:4){
+  n <- disrupt(ri=ri[i],rf=rf[i])
+  plot(n[2:length(n)]~n[1:(length(n)-1)])
+}
+
 ###
 dndt <- function(N,r,k){
   -r*N + (r/k)*N^2

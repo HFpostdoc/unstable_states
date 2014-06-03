@@ -6,12 +6,44 @@ source('../src/unstable_states.R')
 library('fractal')
 library('YaleToolkit')
 
-###lvq = lotka volterra equations
+###
+dndt <- function(N,r,k){
+  -r*N + (r/k)*N^2
+}
 
-lvq <- function(N1=10,N2=10,r1=2,r2=2,K1=100,K2=90,a=0.5,b=0.5){
-  dn1 <- r1*N1-(N1^2*r1/K1)-(N1*N2*a*r1/K1)
-  dn2 <- r2*N2-(N2^2*r2/K2)-(N1*N2*b*r2/K2)
-  return(c(N1+dn1,N2+dn2))
+###Luewis Kareiva model
+lk <- function(N,r,k,A){
+  r*N*(1-(N/k))*((N/k)-(A/k))
+}
+
+Vdndt <- function(N,r,k){
+  (r/(3*k))*N^3 - (r/2)*N^2
+}
+
+Vlk <- function(N,r,k,A){
+  (r/k)*((1/(4*k))*N^4 - (1/3)*(1+(A/k))*N^3 + (A/2)*N^2)
+}
+
+N <- 1:80
+par(mfcol=c(2,2))
+plot(-sapply(N,dndt,r=0.1,k=62)~N,ylim=c(-2,2))
+abline(h=0,v=62,lty=2)
+plot(sapply(N,Vdndt,r=0.1,k=62)~N,ylim=c(-70,10))
+abline(h=0,v=62,lty=2)
+plot(sapply(N,lk,r=0.1,k=62,A=20)~N,ylim=c(-0.6,0.6))
+abline(h=0,v=62,lty=2)
+plot(sapply(N,Vlk,r=0.1,k=62,A=20)~N,ylim=c(-12,4))
+abline(h=0,v=62,lty=2)
+
+fold <- function(x,a){
+  x^3 + a*x
+}
+
+fold.sim <- sapply(seq(-10,10,by=0.1),function(a) fold(0:100,a))
+
+par(mfrow=c(1,1))
+for (i in 1:ncol(fold.sim)){
+  plot(fold.sim[,i])
 }
 
 while(2<3){
