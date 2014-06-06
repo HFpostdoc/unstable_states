@@ -7,6 +7,21 @@ library('fractal')
 library('YaleToolkit')
 
 ###This formulation was taken from Gotelli 4th ed.
+disrupt.mc <- function(mu=0,sd=0.1,ri=1,rf=2,tf=1000,N=10,K=100,burn=100,dump=FALSE){
+  if (burn > tf){burn <- round(tf*0.25,2)}
+  r <- c(rep(ri,burn),seq(ri,rf,length=tf))
+  r <- r + rnorm(length(r),mu,sd)
+  for (t in 2:burn){
+    N[t] <- N[t-1] + r[t]*N[t-1]*(1-N[t-1]/K)
+  }
+  for (t in burn:(burn+tf)){
+    N[t] <- N[t-1] + r[t]*N[t-1]*(1-N[t-1]/K)
+  }
+  if (dump){N <- data.frame(t=1:(burn+tf),r=r,N=N)}
+  return(N)
+}
+
+
 grow <- function(r=2.570,N=10,K=100,tf=100){
   for (t in 2:tf){
     N[t] <- N[t-1] + r*N[t-1]*(1-N[t-1]/K)
@@ -27,9 +42,86 @@ disrupt <- function(ri=1,rf=2,tf=1000,N=10,K=100,burn=100,dump=FALSE){
   return(N)
 }
 
+###Chaos and not
+n1 <- grow(r=2.50000001,N=10,K=300,tf=1000)
+n2 <- grow(r=2.50000001,N=11,K=300,tf=1000)
+c1 <- grow(r=2.59999999,N=10,K=300,tf=1000)
+c2 <- grow(r=2.59999999,N=11,K=300,tf=1000)
+
+par(mfrow=c(2,2))
+plot(n1,type='l');lines(n2,col='red')
+plot(c1,type='l');lines(c2,col='red')
+plot(n1-n2,type='l')
+plot(c1-c2,type='l')
+par(mfrow=c(1,1))
+hist(c1-c2,freq=FALSE)
+lines(density(rnorm(length(c1),mean(c1-c2),sd(c1-c2))))
+plot(density(c1-c2))
+lines(density(rnorm(length(c1),mean(c1-c2),sd(c1-c2))),lty=2)
+
+
+###Disrupt simulations
 ri <- c(1.997,2.455,2.550,2.57)-(0.02/2)
 rf <- c(1.997,2.455,2.550,2.57)+(0.02/2)
 
+###With error in r
+par(mfcol=c(2,4))
+plot(disrupt.mc(sd=0.01,ri=ri[1],rf=rf[1]),xlab='time',ylab='N')
+title(main=rf[1])
+plot(disrupt.mc(sd=0.01,ri=ri[1],rf=rf[1],dump=TRUE)$r,xlab='time',ylab='r')
+plot(disrupt.mc(sd=0.01,ri=ri[2],rf=rf[2]),xlab='time',ylab='N')
+title(main=rf[2])
+plot(disrupt.mc(sd=0.01,ri=ri[2],rf=rf[2],dump=TRUE)$r,xlab='time',ylab='r')
+plot(disrupt.mc(sd=0.01,ri=ri[3],rf=rf[3]),xlab='time',ylab='N')
+title(main=rf[3])
+plot(disrupt.mc(sd=0.01,ri=ri[3],rf=rf[3],dump=TRUE)$r,xlab='time',ylab='r')
+plot(disrupt.mc(sd=0.01,ri=ri[4],rf=rf[4]),xlab='time',ylab='N')
+title(main=rf[4])
+plot(disrupt.mc(sd=0.01,ri=ri[4],rf=rf[4],dump=TRUE)$r,xlab='time',ylab='r')
+
+###phases
+par(mfrow=c(2,2))
+for (i in 1:4){
+  n <- disrupt.mc(sd=0.01,ri=ri[i],rf=rf[i])
+  plot(n[2:length(n)]~n[1:(length(n)-1)],type='l',col='grey')
+}
+
+###focus on transition to chaos
+opar <- par()
+
+par(mfrow=c(2,2),mai=opar$mai*0.01)
+plot(n1 <- disrupt.mc(sd=0,ri=ri[4],rf=rf[4]),xlab='',ylab='',type='l',xaxt='null',yaxt='null',bty='n')
+plot(n2 <- disrupt.mc(sd=0.01,ri=ri[4],rf=rf[4]),xlab='',ylab='',type='l',xaxt='null',yaxt='null',bty='n')
+plot(n1[11:length(n1)]~n1[10:(length(n1)-1)],type='l',col='black',lwd=0.25,xlab='',ylab='',xaxt='null',yaxt='null',bty='n')
+plot(n2[11:length(n2)]~n2[10:(length(n2)-1)],type='l',col='black',lwd=0.25,xlab='',ylab='',xaxt='null',yaxt='null',bty='n')
+
+par(mfrow=c(10,10),mai=opar$mai*0.01)
+for (i in 1:100){
+  n1 <- disrupt.mc(sd=0.01,ri=ri[4],rf=rf[4])
+  plot(n1[11:length(n1)]~n1[10:(length(n1)-1)],type='l',col='black',lwd=0.25,xlab='',ylab='',xaxt='null',yaxt='null',bty='n')
+}
+
+###Looking at early warning signals
+n0 <- disrupt.mc(sd=0,ri=ri[4],rf=rf[4],dump=TRUE)
+n1 <- disrupt.mc(sd=0.005,ri=ri[4],rf=rf[4],dump=TRUE)
+n2 <- disrupt.mc(sd=0.01,ri=ri[4],rf=rf[4],dump=TRUE)
+
+##Crossing the threshold of r
+par(mfrow=c(1,3))
+plot(n0$r~n0$t,type='l',ylab='r')
+abline(h=2.571451,lty=2)
+plot(n1$r~n1$t,xlab='t')
+abline(h=2.571451,lty=2)
+plot(n2$r~n2$t)
+abline(h=2.571451,lty=2)
+
+##EWS
+library(earlywarnings)
+ews0 <- generic_ews(n0$N)
+ews1 <- generic_ews(n1$N)
+
+
+###No error in r
 par(mfcol=c(2,4))
 plot(disrupt(ri=ri[1],rf=rf[1]),xlab='time',ylab='N')
 title(main=rf[1])
