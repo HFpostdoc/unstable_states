@@ -1,0 +1,139 @@
+%%%NOTE: for help with latex symbols look here http://mirror.unl.edu/ctan/info/symbols/comprehensive/symbols-a4.pdf.
+\documentclass[12pt]{article}
+\usepackage{color}
+\usepackage{cite}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\usepackage{pdflscape}        %single page landscape
+                                %mode \begin{landscape} \end{landscape}
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{multicol} % \begin{multicols}{number of columns} \end{multicols}
+% \usepackage{lineno} %add lines numbers 
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{Sweave}
+\newcommand{\etal}{\textit{et al.}}
+\usepackage{hyperref}  %\hyperref[label_name]{''link text''}
+                       %\hyperlink{label}{anchor caption}
+                       %\hypertarget{label}{link caption}
+\linespread{1.5}
+
+\title{Unstable States: Community dynamics in a chaotic world}
+\author{M.K. Lau}
+%\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+%\linenumbers %%add line numbers
+
+%\setcounter{tocdepth}{3}  %%activate to number sections
+%\tableofcontents
+
+%\thispagestyle{empty}
+%\setcounter{page}{0}
+%\setcounter{secnumdepth}{-1}  %activate to start numbering from one
+%on the second page
+
+
+\section{16 Jun 2014}
+
+<<>>=
+###Run repeated simulations for ews time series
+source('../src/unstable_states.R')
+library(earlywarnings)
+cb8.16 <- 2.57 #choatic boundary, 8-16 cycles
+ri <- (cb8.16)-(0.02/2)
+rf <- (cb8.16)+(0.02/2)
+mc <- 50
+stats8.16 <- list()
+stats16.8 <- list()
+for (i in 1:mc){
+  print(i)
+  rN <- sample(1:139,1)
+  drmc8.16 <- disrupt.mc(N=rN,sd=0.01,ri=ri,rf=rf,dump=TRUE)
+  drmc16.8 <- disrupt.mc(N=rN,sd=0.01,ri=rf,rf=ri,dump=TRUE)
+  ews8.16 <- generic_ews(drmc8.16$N)
+  ews16.8 <- generic_ews(drmc16.8$N)
+  stats8.16[[i]] <- cor(ews8.16,method='ken')[1,-1]
+  stats16.8[[i]] <- cor(ews16.8,method='ken')[1,-1]
+  dev.off()
+  dev.off()
+}
+dput(stats8.16,file='../results/stats816.rdata')
+dput(stats16.8,file='../results/stats168.rdata')
+                                        #
+summary(do.call(rbind,stats8.16)[,-1:-2])
+summary(do.call(rbind,stats16.8)[,-1:-2])
+
+@ 
+
+<<>>=
+library(earlywarnings)
+set.seed(1)
+drmc8.16 <- disrupt.mc(sd=0.01,ri=ri,rf=rf,dump=TRUE)
+set.seed(1)
+drmc16.8 <- disrupt.mc(sd=0.01,ri=rf,rf=ri,dump=TRUE)
+ews8.16 <- generic_ews(drmc8.16$N)
+ews16.8 <- generic_ews(drmc16.8$N)
+
+stats8.16 <- cor(ews8.16,method='ken')
+stats16.8 <- cor(ews8.16,method='ken')
+
+
+@ 
+
+<<>>=
+  ##Re-doing noise in r shifting up and down across 8-16
+source('../src/unstable_states.R')
+cb8.16 <- 2.57 #choatic boundary, 8-16 cycles
+ri <- (cb8.16)-(0.02/2)
+rf <- (cb8.16)+(0.02/2)
+set.seed(1)
+drmc8.16 <- disrupt.mc(sd=0.01,ri=ri,rf=rf,dump=TRUE)
+set.seed(1)
+drmc16.8 <- disrupt.mc(sd=0.01,ri=rf,rf=ri,dump=TRUE)
+par(mfrow=c(3,2))
+plot(drmc8.16$r,xlab='time',ylab='r')
+abline(h=cb8.16,col=2)
+plot(drmc16.8$r,xlab='time',ylab='r')
+abline(h=cb8.16,col=2)
+plot(drmc16.8$N,xlab='time',ylab='N')
+plot(drmc8.16$N,xlab='time',ylab='N')
+plot(drmc16.8$N~drmc16.8$r,xlab='r',ylab='N',type='l')
+plot(drmc8.16$N~drmc8.16$r,xlab='r',ylab='N',type='l')
+###Phase space
+par(mfrow=c(1,2))
+                                        #plus n time steps
+for (n in 25:50){
+  plot(drmc16.8$N[(1:(length(drmc16.8$N)-n))],drmc16.8$N[((n+1):(length(drmc16.8$N)))],
+       xlab='N',ylab='N+1',type='l')
+  plot(drmc8.16$N[(1:(length(drmc8.16$N)-n))],drmc8.16$N[((n+1):(length(drmc8.16$N)))],
+       xlab='N',ylab='N+1',type='l')
+}
+
+#EWS
+library(earlywarnings)
+ews8.16 <- generic_ews(drmc8.16$N)
+ews16.8 <- generic_ews(drmc16.8$N)
+
+@ 
+
+Summary to date (going back in time):
+
+\begin{itemize}
+\item At the 8-16 cycle threshold, error in r leads to early, sudden shifts
+\item Slow ramping can also be seen visually
+\item Sudden jumps across cycle boundaries can be seen visually
+\end{itemize}
+
+
+
+%% %%Activate for bibtex vibliography
+%% \cite{goossens93}
+%% \bibliographystyle{plain}
+%% \bibliography{/Users/Aeolus/Documents/bibtex/biblib}
+
+
+\end{document}  
+
+

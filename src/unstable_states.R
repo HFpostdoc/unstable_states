@@ -3,6 +3,43 @@
 ###Code = MKLau
 ###Initiated 21May2014
 
+###This formulation was taken from Gotelli 4th ed.
+disrupt.mc <- function(mu=0,sd=0.1,ri=1,rf=2,tf=1000,N=10,K=100,burn=100,dump=FALSE){
+  if (burn > tf){burn <- round(tf*0.25,2)}
+  r <- c(rep(ri,burn),seq(ri,rf,length=tf))
+  r <- r + rnorm(length(r),mu,sd)
+  for (t in 2:burn){
+    N[t] <- N[t-1] + r[t]*N[t-1]*(1-N[t-1]/K)
+  }
+  for (t in burn:(burn+tf)){
+    N[t] <- N[t-1] + r[t]*N[t-1]*(1-N[t-1]/K)
+  }
+  if (dump){N <- data.frame(t=1:(burn+tf),r=r,N=N)}
+  return(N)
+}
+
+
+grow <- function(r=2.570,N=10,K=100,tf=100){
+  for (t in 2:tf){
+    N[t] <- N[t-1] + r*N[t-1]*(1-N[t-1]/K)
+  }
+  return(N)
+}
+
+disrupt <- function(ri=1,rf=2,tf=1000,N=10,K=100,burn=100,dump=FALSE){
+  if (burn > tf){burn <- round(tf*0.25,2)}
+  r <- c(rep(ri,burn),seq(ri,rf,length=tf))
+  for (t in 2:burn){
+    N[t] <- N[t-1] + r[t]*N[t-1]*(1-N[t-1]/K)
+  }
+  for (t in burn:(burn+tf)){
+    N[t] <- N[t-1] + r[t]*N[t-1]*(1-N[t-1]/K)
+  }
+  if (dump){N <- data.frame(t=1:(burn+tf),r=r,N=N)}
+  return(N)
+}
+
+
 ##Using Bob May's logistic growth parameterization for ecosystems
 ##Using the quadratic recurrence equation (or quadratic map) which May develops by defining X = bN/a
 ##Here, we use the r notation that is more common now instead of a
