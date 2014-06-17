@@ -35,11 +35,20 @@
 %on the second page
 
 
+\section{17 Jun 2014}
+
+Reading Hastings
+Reading Sheffer
+Reading Dakos
+
 \section{16 Jun 2014}
 
 \begin{itemize}
 \item the distribution of the average of r is uniform
-\item look at ensemble plot of N over r
+\item ensemble distribution is normal
+\item EWS stats not correlated between 8to16 and 16to8
+\item Phase (Ni to Nf) spaces for EWS correlations 
+\item EWS stats intercorrelations show correlations and break points
 \end{itemize}
 
 <<>>=
@@ -119,8 +128,8 @@ for (i in 1:ncol(stats16.8)){
        type='l',col='darkgrey',xaxt='n',yaxt='n',bty='n')
 }
 ###Ensemble N~stats
-pairs(data.frame(Ni=(1:nrow(stats8.16)),stats8.16))
-pairs(data.frame(Ni=(1:nrow(stats16.8)),stats16.8))
+pairs(data.frame(Ni=(1:nrow(stats8.16)),stats8.16),pch=19,cex=0.10,col='black')
+pairs(data.frame(Ni=(1:nrow(stats16.8)),stats16.8),cex=0.10,col='black')
 
 @ 
 
