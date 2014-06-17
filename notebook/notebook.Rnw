@@ -37,6 +37,11 @@
 
 \section{16 Jun 2014}
 
+\begin{itemize}
+\item the distribution of the average of r is uniform
+\item look at ensemble plot of N over r
+\end{itemize}
+
 <<>>=
 ###Run repeated simulations for ews time series
 source('../src/unstable_states.R')
@@ -44,26 +49,78 @@ library(earlywarnings)
 cb8.16 <- 2.57 #choatic boundary, 8-16 cycles
 ri <- (cb8.16)-(0.02/2)
 rf <- (cb8.16)+(0.02/2)
-mc <- 50
-stats8.16 <- list()
-stats16.8 <- list()
-for (i in 1:mc){
+##Visualizing the error in r
+r8.16 <- list()
+r16.8 <- list()
+for (i in 1:138){
   print(i)
-  rN <- sample(1:139,1)
-  drmc8.16 <- disrupt.mc(N=rN,sd=0.01,ri=ri,rf=rf,dump=TRUE)
-  drmc16.8 <- disrupt.mc(N=rN,sd=0.01,ri=rf,rf=ri,dump=TRUE)
-  ews8.16 <- generic_ews(drmc8.16$N)
-  ews16.8 <- generic_ews(drmc16.8$N)
-  stats8.16[[i]] <- cor(ews8.16,method='ken')[1,-1]
-  stats16.8[[i]] <- cor(ews16.8,method='ken')[1,-1]
-  dev.off()
-  dev.off()
+  r8.16[[i]] <- disrupt.mc(N=i,sd=0.01,ri=ri,rf=rf,dump=TRUE)$r
+  r16.8[[i]] <- disrupt.mc(N=i,sd=0.01,ri=rf,rf=ri,dump=TRUE)$r
 }
-dput(stats8.16,file='../results/stats816.rdata')
-dput(stats16.8,file='../results/stats168.rdata')
-                                        #
-summary(do.call(rbind,stats8.16)[,-1:-2])
-summary(do.call(rbind,stats16.8)[,-1:-2])
+rmu8.16 <- apply(do.call(rbind,r8.16),2,mean)
+rmu16.8 <- apply(do.call(rbind,r16.8),2,mean)
+par(mfrow=c(1,2))
+plot(density(rmu8.16),main='',xlab='r')
+for (i in 1:length(r8.16)){
+  lines(density(r8.16[[i]]),col='grey',lwd=0.5)
+}
+abline(v=cb8.16,lty=2);abline(v=mean(rmu8.16),lty=2,col='darkgrey')
+plot(density(rmu16.8),xlab='r',main='')
+for (i in 1:length(r16.8)){
+  lines(density(r16.8[[i]]),col='grey',lwd=0.5)
+}
+abline(v=cb8.16,lty=2);abline(v=mean(rmu16.8),lty=2,col='darkgrey')
+###Determine average threshold
+##What is the point at which rbar has crossed the threshold?
+##Directionality depends on direction of r
+rt8.16 <- (1:length(rmu8.16))[rmu8.16>=cb8.16][1]
+rt16.8 <- (1:length(rmu16.8))[rmu16.8<=cb8.16][1]
+rt8.16
+rt16.8
+
+###EWS stats
+stats8.16 <- dget(file='../results/stats816.rdata')
+stats16.8 <- dget(file='../results/stats168.rdata')
+###
+stats8.16 <- na.omit(do.call(rbind,stats8.16))
+stats16.8 <- na.omit(do.call(rbind,stats16.8))
+###
+stats8.16 <- stats8.16[1:min(c(nrow(stats8.16),nrow(stats16.8))),]
+stats16.8 <- stats16.8[1:min(c(nrow(stats8.16),nrow(stats16.8))),]
+###
+par(mfrow=c(2,ncol(stats8.16)/2),
+    mai=c(0.25,0.01,0.25,0.01))
+for (i in 1:ncol(stats8.16)){
+  plot(density(stats8.16[,i]),
+       main=colnames(stats8.16)[i],
+       xlim=c(min(c(stats8.16[,i],stats16.8[,i])),
+         max(c(stats8.16[,i],stats16.8[,i]))),
+       xaxt='n',yaxt='n',bty='n')
+  lines(density(stats16.8[,i]),lty=2)
+}
+###
+par(mfrow=c(2,ncol(stats16.8)/2))
+for (i in 1:ncol(stats8.16)){
+  plot(stats16.8[,i]~stats8.16[,i],
+       xlab=paste(colnames(stats8.16)[i],'8.16'),
+       ylab=paste(colnames(stats16.8)[i],'16.8'))
+  abline(lm(stats16.8[,i]~stats8.16[,i]))
+}
+
+###
+par(mfrow=c(4,ncol(stats8.16)/2),
+    mai=c(0,0,0,0))
+for (i in 1:ncol(stats8.16)){
+  plot(stats8.16[1:(nrow(stats8.16)-1),i]~stats8.16[2:(nrow(stats8.16)),i],
+       type='l',xaxt='n',yaxt='n',bty='n')
+}
+for (i in 1:ncol(stats16.8)){
+  plot(stats16.8[1:(nrow(stats16.8)-1),i]~stats16.8[2:(nrow(stats16.8)),i],
+       type='l',col='darkgrey',xaxt='n',yaxt='n',bty='n')
+}
+###Ensemble N~stats
+pairs(data.frame(Ni=(1:nrow(stats8.16)),stats8.16))
+pairs(data.frame(Ni=(1:nrow(stats16.8)),stats16.8))
 
 @ 
 
