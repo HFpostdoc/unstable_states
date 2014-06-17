@@ -37,6 +37,89 @@
 
 \section{17 Jun 2014}
 
+Chatted with Aaron
+
+The data don't support a general pattern of alternative states.
+
+If systems are inherently chaotic or stochastic, then what?
+
+The data:
+\begin{itemize}
+\item Climate isn't stable
+\item Fossil records don't show stability
+\item Tropical systems don't show stability
+\item Even temperate systems break the rule of stability
+\end{itemize}
+
+Two goals:
+\begin{enumerate}
+\item Can we tell when we transition between states?
+\item Is there an alternative philosphy? Mathematical framework?
+\end{enumerate}
+
+Run simulation increasing r with variance over the chaos threshold
+
+<<>>=
+  ##hold ni constant
+  ##hold sd constant at 0.1
+  ##record r
+  ##record n
+  ##record ews
+  source('../src/unstable_states.R')
+library(earlywarnings)
+cb8.16 <- 2.57 #choatic boundary, 8-16 cycles
+ri <- (cb8.16)-(0.02/2)
+rf <- (cb8.16)+(0.02/2)
+dmc <- list()
+ews <- list()
+mcn <- 100
+for (i in 1:mcn){
+  print(i)
+  dmc[[i]] <- disrupt.mc(N=10,sd=0.01,ri=ri,rf=rf,dump=TRUE)
+  ews[[i]] <- generic_ews(dmc[[i]]$N)
+  dev.off()
+}
+## dput(dmc,'../results/dmc.out')
+## dput(ews,'../results/ews.out')
+###
+###
+###
+dmc <- dget('../results/dmc.out')
+ews <- dget('../results/ews.out')
+##
+yl <- apply(do.call(rbind,ews),2,min)
+yu <- apply(do.call(rbind,ews),2,max)
+##
+par(mfrow=c(2,(ncol(ews[[1]])-1)/2))
+for (i in 2:ncol(ews[[1]])){
+  for (j in 1:length(ews)){
+    if (j==1){
+      plot(ews[[j]][,i]~ews[[j]][,1],ylim=c(yl[i],yu[i]),
+           ylab=colnames(ews[[1]])[i],xlab='t',
+           type='l',lwd=0.25)
+    }else{
+      lines(ews[[j]][,i]~ews[[j]][,1],lwd=0.25)
+    }
+  }
+}
+###Average plots
+ews. <- do.call(rbind,ews)
+t <- do.call(rbind,dmc)$t
+r <- do.call(rbind,dmc)$r
+r. <- r
+r[r.>=cb8.16] <- 2
+r[r.<cb8.16] <- 1
+r <- r[t>=ews[[1]][,1][1]]
+#pairs(ews.,cex=0.05,pch=19,col=r)
+par(mfrow=c(1,1))
+plot(ews.[,c(3,4)],pch=19,col=r,cex=(0.01+(0.5*(ews.[,1]/max(ews.[,1])))))
+unique(ews.[ews.[,3]>30.15&ews.[,4]>0.185,1])
+ews. <- apply(ews.,2,function(x,t) tapply(x,t,mean),t=ews.[,1])
+pairs(ews.,cex=0.10,pch=19)
+
+@ 
+
+
 Reading Hastings
 Reading Sheffer
 Reading Dakos
