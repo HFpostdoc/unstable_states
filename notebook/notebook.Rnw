@@ -34,6 +34,167 @@
 %\setcounter{secnumdepth}{-1}  %activate to start numbering from one
 %on the second page
 
+\section{19 Jun 2014}
+
+Generate plots for the tipping_points2
+
+\begin{itemize}
+\item Model description is in SarrModel-20140709-AME.lyx
+\item Model was coded in mathematica (Pitcher_Plant_Threshold_Model.txt)
+\item Free parameter space for simulations is defined in parameters.csv
+  \subitem Note that the a and b terms for calculating w(t) are
+  coupled in order to keep the integral (i.e. the area under the
+  decomposition curve) equal across simulations
+\item Simulation output is in Raw_runs.csv, ten_min_average.csv, hundred_min_average.csv
+\item PAR to O2.docx describes the addition of the saturation function
+  to A(t)
+\end{itemize}
+
+<<>>=
+
+
+  ##free parameter space
+  fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+##Using the 100 min averages
+##Runs are in columns
+x <- read.csv('/Users/Aeolus/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+plot(x[,1],pch=19,cex=0.1)
+for (i in 2:ncol(x)){
+  points(1:length(x[,i]),x[,i],pch=19,cex=0.1)
+}
+
+par(mfrow=c(1,2))
+i <- 2
+plot(x[,i],pch=19,cex=0.1,col=rainbow(length(x[,i])))
+plot(x[2:length(x[,i]),i]~x[1:(length(x[,i])-1),i],pch=19,cex=0.1,col=rainbow(length(x[,i])))
+
+par(mfrow=c(1,2))
+for (i in 1:ncol(x)){
+  plot(x[,i],pch=19,cex=0.1,col=rainbow(length(x[,i])),
+       main=paste(paste(colnames(fps)[2:ncol(fps)],fps[i,2:ncol(fps)],sep='='),collapse=', '))
+  plot(x[2:length(x[,i]),i]~x[1:(length(x[,i])-1),i],pch=19,cex=0.1,col=rainbow(length(x[,i])),
+       main=paste(paste(colnames(fps)[2:ncol(fps)],fps[i,2:ncol(fps)],sep='='),collapse=', '))
+  play(x[,i]^3/max(x^3))
+  Sys.sleep(0.15)
+}
+
+@ 
+
+The pitcher plant respiration model:
+
+Terms:
+
+\begin{itemize}
+\item t = time
+\item x = oxygen
+\item A = environmental factor promoting oxygenation (i.e. PAR = light)
+\item f(w,x) = loss/decay of oxygen 
+\item g(x) = recovery of oxygen (augmented by mineralized nutrients)
+\item w = prey mass
+\end{itemize}
+
+\begin{equation}
+  \frac{dx}{dt}  = A - f(w,x) + g(x)
+\end{equation}
+
+\begin{equation}
+  x_{t+1} = a_t * sin(2 \pi f t) -  (m + a_t \frac{w_{t-1}}{K_w +
+    w_{t-1}}) + D_t(x_t,a^{\prime}_t)
+\end{equation}
+
+
+
+<<eval=false>>=
+  a0 <- 10
+f <- 1/1440
+t <- rep((1:1440),10)
+d <- rep(1:10,each=1440)
+A <- a0*sin(2*pi*f*t)
+A[t>720] <- 0
+plot(A,type='l',ylab=expression(O[2]))
+
+@ 
+
+\begin{equation}
+  w(t+1) = ae^{-bw_0t}
+\end{equation}
+
+Note that this is a correction from the printed version in PNAS
+
+<<>>=
+y <- NULL
+a <- 20
+b
+for (i in 1:17){ y[i] <- 20*exp(-.1395*(i-1))}
+
+plot(c(0:16), y, xlim=c(0,16), ylim=c(0,20))
+
+par(list(pin=c(3,3),las=1))
+integrand <- function(x, a=4) {20*exp(-a*x)}
+plot(integrand, xlim=c(0,16), xlab="Days", ylab="Mass of prey remaining (mg)",
+                     lwd=2, col="red", font=2, font.lab=2)
+integrate(integrand, lower=0, upper=16)
+
+
+###
+a <- 20
+b <- 4
+e <- exp(1)
+w <- 75/1000
+
+for (t in 2:20){
+  w[t] <- exp(-w[t-1])
+}
+plot(w,type='l')
+
+@ 
+
+\begin{verbatim}
+Here is a link to the pitcher-plant tipping point dropbox. To
+start, go to ../Model sensitivity analysis and second paper/data/ and
+read the metadata.csv file. The various raw and average files are the
+ones to think about plotting. We can talk about it later today.
+\end{verbatim}
+
+\section{18 Jun 2014}
+
+Question: Are transitions between chaotic states detectable?
+
+Question: Are there classes of models that possess detectable chaotic
+transition warning signals?
+
+Modeling Issues:
+\begin{enumerate}
+\item a in S2.2 can be confused with a in S2.1
+\item What is the exponent in S2.2?
+\item Why is b (S2.2) in days rather than minutes?
+\item Why is w(t-1) used in S2.3?
+\end{enumerate}
+
+<<eval=false>>=
+  ##Initial stab at the spo2 model
+  a0 <- 10
+f <- 1/(60*24) #total minutes in a day
+t <- rep((1:(60*24)),11)
+At <- a0 * sin(2*pi*f*t)
+At[t>720] <- 0
+plot(At~I(1:length(t)),type='l')
+
+a <- 20
+b <- 4
+wt <- 20
+wt <- a*exp(1)^(-b*wt)
+
+spo2 <- function(x,a,f,t,m,w,Kw,s,d){
+  At <- a0 * sin(2*pi*f*t)
+  
+  
+}
+
+@ 
+
+
 
 \section{17 Jun 2014}
 
@@ -59,7 +220,7 @@ Two goals:
 
 Run simulation increasing r with variance over the chaos threshold
 
-<<>>=
+<<eval=false>>=
   ##hold ni constant
   ##hold sd constant at 0.1
   ##record r
@@ -134,7 +295,7 @@ Reading Dakos
 \item EWS stats intercorrelations show correlations and break points
 \end{itemize}
 
-<<>>=
+<<eval=false>>=
 ###Run repeated simulations for ews time series
 source('../src/unstable_states.R')
 library(earlywarnings)
@@ -216,7 +377,7 @@ pairs(data.frame(Ni=(1:nrow(stats16.8)),stats16.8),cex=0.10,col='black')
 
 @ 
 
-<<>>=
+<<eval=false>>=
 library(earlywarnings)
 set.seed(1)
 drmc8.16 <- disrupt.mc(sd=0.01,ri=ri,rf=rf,dump=TRUE)
@@ -231,7 +392,7 @@ stats16.8 <- cor(ews8.16,method='ken')
 
 @ 
 
-<<>>=
+<<eval=false>>=
   ##Re-doing noise in r shifting up and down across 8-16
 source('../src/unstable_states.R')
 cb8.16 <- 2.57 #choatic boundary, 8-16 cycles
