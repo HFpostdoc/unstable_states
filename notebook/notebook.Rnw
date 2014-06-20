@@ -34,6 +34,86 @@
 %\setcounter{secnumdepth}{-1}  %activate to start numbering from one
 %on the second page
 
+\section{20 Jun 2014}
+
+Plot tests (ordination and smoothed-detrended-decycled) are up on
+github.
+
+EWS for simulations:
+
+- Write a script that will record the early warning signals for all
+180 simulations.
+
+<<eval=false>>=
+source('../src/sens2_ews.R')
+  fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+#x <- x[1000:5400,]
+x[x<0] <- 0
+###Isolate controls
+my.col <- rainbow(nlevels(factor(fps$Prey)))[as.numeric(factor(fps$Prey))]
+sdd.x <- list()
+index <- apply(fps,1,function(x) paste(x[3:6],collapse=' '))
+cn <- (1:nrow(fps))[fps$Prey==0&index==paste(fps[1,3:6],collapse=' ')]
+plot(sdd.x[[1]] <- sddSens(x[,1],x[,cn]),ylim=c(-1,1),pch=19,
+     cex=0.25,ylab=expression(O[2]),xlab='t',col=my.col[1])
+for (i in 1:ncol(x)){
+  if (all(x[,i]==0)){sdd.x[[i]] <- NA}else{
+    cn <- (1:nrow(fps))[fps$Prey==0&index==paste(fps[i,3:6],collapse=' ')]  
+    points(sdd.x[[i]] <- sddSens(x[,i],x[,cn]),pch=19,cex=0.25,col=my.col[i])
+  }
+}
+legend('topright',legend=unique(fps$Prey),col=rainbow(nlevels(factor(fps$Prey))),pch=19,title=expression(w[0]))
+###
+my.col <- rainbow(nlevels(factor(fps$b)))[as.numeric(factor(fps$b))]
+sdd.x <- list()
+index <- apply(fps,1,function(x) paste(x[3:6],collapse=' '))
+cn <- (1:nrow(fps))[fps$Prey==0&index==paste(fps[1,3:6],collapse=' ')]
+plot(sdd.x[[1]] <- sddSens(x[,1],x[,cn]),ylim=c(-1,1),pch=19,
+     cex=0.25,ylab=expression(O[2]),xlab='t',col=my.col[1])
+for (i in 1:ncol(x)){
+  if (all(x[,i]==0)){sdd.x[[i]] <- NA}else{
+    cn <- (1:nrow(fps))[fps$Prey==0&index==paste(fps[i,3:6],collapse=' ')]  
+    points(sdd.x[[i]] <- sddSens(x[,i],x[,cn]),pch=19,cex=0.25,col=my.col[i])
+  }
+}
+legend('topright',legend=levels(factor(fps$b)),col=rainbow(nlevels(factor(fps$b))),pch=19,title='b')
+
+library(strucchange)
+
+
+@ 
+
+Look at the temporal correlation structure among simulations:
+
+<<eval=false>>=
+##Using the 100 min averages
+##Runs are in columns
+  fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+plot(x[,1],xlab='t',ylab=expression(O[2]),ylim=c(0,max(x)),type='l',lwd=0.5,col=rainbow(ncol(x))[1])
+for (i in 2:ncol(x)){
+  lines(1:nrow(x),x[,i],lwd=0.5,col=rainbow(ncol(x))[i])
+}
+abline(v=c(1000,5400))
+x <- x[1000:5400,]
+x[x<0] <- 0
+d.x <- dist(t(x))
+library(vegan)
+library(ecodist)
+eig.x <- eigen(d.x)
+biplot(princomp(d.x))
+vd.x <- vegdist(t(rbind(x,rep(1,ncol(x)))))
+nmds.x <- nmds(vd.x,2,2)
+envf.x <- envfit(env=fps,ord=nmds.min(nmds.x))
+plot(apply(nmds.min(nmds.x),2,jitter,factor=50),col=rainbow(ncol(x)))
+plot(envf.x)
+envf.x
+
+@ 
+
 \section{19 Jun 2014}
 
 Generate plots for the tipping_points2
@@ -50,7 +130,7 @@ Generate plots for the tipping_points2
   to A(t)
 \end{itemize}
 
-<<>>=
+<<eval=false>>=
 
 
   ##free parameter space
