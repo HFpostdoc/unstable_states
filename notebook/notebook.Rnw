@@ -66,6 +66,11 @@ for (i in 1:ncol(x)){
 }
 legend('topright',legend=unique(fps$Prey),col=rainbow(nlevels(factor(fps$Prey))),pch=19,title=expression(w[0]))
 ###
+par(mfrow=c(1,2))
+plot(x[,1])
+plot(sdd.x[[1]])
+
+###
 my.col <- rainbow(nlevels(factor(fps$b)))[as.numeric(factor(fps$b))]
 sdd.x <- list()
 index <- apply(fps,1,function(x) paste(x[3:6],collapse=' '))
