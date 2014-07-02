@@ -3,6 +3,18 @@
 ###Code = MKLau
 ###Initiated 21May2014
 
+###Find the start and end points for days in the model output
+find.days <- function(y){
+  f <- 0
+  s <- 1
+  for (i in 1:(length(y)-1)){
+    if (y[i]==0&y[i+1]!=0){s <- c(s,i)}else if (y[i]!=0&y[i+1]==0){f <- c(f,i)}
+  }
+  f <- f[-1]
+  out <- apply(rbind(s,f),2,function(x) x[1]:x[2])
+  return(out)
+}
+
 ###This formulation was taken from Gotelli 4th ed.
 disrupt.mc <- function(mu=0,sd=0.1,ri=1,rf=2,tf=1000,N=10,K=100,burn=100,dump=FALSE){
   if (burn > tf){burn <- round(tf*0.25,2)}
