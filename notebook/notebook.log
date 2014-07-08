@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.3-1.40.12 (TeX Live 2011) (format=pdflatex 2011.7.3)  19 JUN 2014 11:54
+This is pdfTeX, Version 3.1415926-2.3-1.40.12 (TeX Live 2011) (format=pdflatex 2011.7.3)  8 JUL 2014 14:52
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -475,52 +475,220 @@ LaTeX Font Info:    Try loading font information for U+msb on input line 28.
 (/usr/local/texlive/2011/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2009/06/22 v3.00 AMS symbols B
 )
-LaTeX Font Info:    Try loading font information for TS1+aer on input line 44.
-LaTeX Font Info:    No file TS1aer.fd. on input line 44.
+LaTeX Font Info:    Try loading font information for TS1+aer on input line 50.
+LaTeX Font Info:    No file TS1aer.fd. on input line 50.
 
 
 LaTeX Font Warning: Font shape `TS1/aer/m/n' undefined
 (Font)              using `TS1/cmr/m/n' instead
-(Font)              for symbol `textbullet' on input line 44.
+(Font)              for symbol `textbullet' on input line 50.
 
 [1
 
 {/usr/local/texlive/2011/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Try loading font information for T1+aett on input line 64.
+<../docs/Eigenvalue_graphs.jpg, id=29, 351.56343pt x 391.4625pt>
+File: ../docs/Eigenvalue_graphs.jpg Graphic file (type jpg)
+
+<use ../docs/Eigenvalue_graphs.jpg>
+Package pdftex.def Info: ../docs/Eigenvalue_graphs.jpg used on input line 69.
+(pdftex.def)             Requested size: 344.005pt x 383.04524pt.
+LaTeX Font Info:    Try loading font information for T1+aett on input line 73.
 
 (/usr/local/texlive/2011/texmf-dist/tex/latex/ae/t1aett.fd
 File: t1aett.fd 1997/11/16 Font definitions for T1/aett.
 )
+LaTeX Font Info:    Try loading font information for TS1+aett on input line 74.
+
+LaTeX Font Info:    No file TS1aett.fd. on input line 74.
+
+
+LaTeX Font Warning: Font shape `TS1/aett/m/sl' undefined
+(Font)              using `TS1/cmr/m/n' instead
+(Font)              for symbol `textquotesingle' on input line 74.
+
+[2 <../docs/Eigenvalue_graphs.jpg>] [3] [4] [5] [6] [7] [8] [9] [10] [11]
+[12] [13]
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.72 
-     
+l.434 Generate plots for the tipping_
+                                     points2
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
 
-! Display math should end with $$.
-<to be read again> 
-                   \par 
-l.72 
-     
-The `$' that I just saw supposedly matches a previous `$$'.
-So I shall assume that you typed `$$' both times.
-
-! You can't use `\eqno' in vertical mode.
-\H@endequation ->\eqno 
-                       \hbox {\@eqnnum }$$\@ignoretrue 
-l.73 \end{equation}
-                   
-Sorry, but I'm not programmed to handle this case;
-I'll just pretend that you didn't ask for it.
-If you're in the wrong mode, you might be able to
-return to the right one by typing `I}' or `I$' or `I\par'.
+! Missing $ inserted.
+<inserted text> 
+                $
+l.435 
+      
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
 
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.73 \end{equation}
+l.438 ... Model was coded in mathematica (Pitcher_
+                                                  Plant_Threshold_Model.txt)
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+! LaTeX Error: Command \item invalid in math mode.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.439 \item
+            Free parameter space for simulations is defined in parameters.csv
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.439 \item F
+             ree parameter space for simulations is defined in parameters.csv
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.439 \item F
+             ree parameter space for simulations is defined in parameters.csv
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.440   \subitem
+                 Note that the a and b terms for calculating w(t) are
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.440   \subitem
+                 Note that the a and b terms for calculating w(t) are
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+
+Overfull \hbox (276.6688pt too wide) in paragraph at lines 438--440
+[]\T1/aer/m/n/12 Model was coded in math-e-mat-ica (Pitcher$[]\OML/cmm/m/it/12 
+lant[]hreshold[]odel:txt\OT1/cmr/m/n/12 )\OML/cmm/m/it/12 Freeparameterspacefor
+simulationsisdefinedinparameters:csv[]$ 
+ []
+
+! Extra }, or forgotten \endgroup.
+\par ...m \@noitemerr {\@@par }\fi \else {\@@par }
+                                                  \fi 
+l.440   \subitem
+                 Note that the a and b terms for calculating w(t) are
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.443 \item Simulation output is in Raw_
+                                        runs.csv, ten_min_average.csv, hundr...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+! LaTeX Error: Command \item invalid in math mode.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.444 \item
+            PAR to O2.docx describes the addition of the saturation function
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.444 \item P
+             AR to O2.docx describes the addition of the saturation function
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.444 \item P
+             AR to O2.docx describes the addition of the saturation function
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Command \end{itemize} invalid in math mode.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.446 \end{itemize}
+                   
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.446 \end{itemize}
+                   
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.446 \end{itemize}
+                   
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.446 \end{itemize}
                    
 I've inserted something that you may have forgotten.
 (See the <inserted text> above.)
@@ -528,45 +696,42 @@ With luck, this will get me unwedged. But if you
 really didn't forget anything, try typing `2' now; then
 my insertion and my current dilemma will both disappear.
 
-! Display math should end with $$.
-<to be read again> 
-                   \endgroup 
-l.73 \end{equation}
-                   
-The `$' that I just saw supposedly matches a previous `$$'.
-So I shall assume that you typed `$$' both times.
 
-[2]
-LaTeX Font Info:    Try loading font information for TS1+aett on input line 105
-.
-LaTeX Font Info:    No file TS1aett.fd. on input line 105.
+Overfull \hbox (332.58023pt too wide) in paragraph at lines 443--447
+[]\T1/aer/m/n/12 Simulation out-put is in Raw$[]\OML/cmm/m/it/12 uns:csv; ten[]
+in[]verage:csv; hundred[]in[]verage:csvPARtoO\OT1/cmr/m/n/12 2\OML/cmm/m/it/12 
+:docxdescribestheadditionofthesaturationfunctiontoA\OT1/cmr/m/n/12 (\OML/cmm/m/
+it/12 t\OT1/cmr/m/n/12 )$ 
+ []
+
+[14] [15] [16] [17] [18] [19] [20] [21] [22] [23] [24] [25] [26]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 844.
+ [27]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 844.
+
+(./notebook.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 844.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 844.
 
 
-LaTeX Font Warning: Font shape `TS1/aett/m/sl' undefined
-(Font)              using `TS1/cmr/m/n' instead
-(Font)              for symbol `textquotesingle' on input line 105.
+Package rerunfilecheck Warning: File `notebook.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
 
-[3] [4] [5] [6] [7] [8] [9] [10]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 373.
- [11]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 373.
- (./notebook.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 373.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 373.
-Package rerunfilecheck Info: File `notebook.out' has not changed.
-(rerunfilecheck)             Checksum: 2E2AD8CC1EBF910808D54029BBEE762A;184.
-
+Package rerunfilecheck Info: Checksums for `notebook.out':
+(rerunfilecheck)             Before: 2E2AD8CC1EBF910808D54029BBEE762A;184
+(rerunfilecheck)             After:  09603D21F8E915B83D3A354CB0C45008;554.
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 373.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 844.
  ) 
 Here is how much of TeX's memory you used:
- 7013 strings out of 493633
- 102915 string characters out of 3143378
- 182438 words of memory out of 3000000
- 10173 multiletter control sequences out of 15000+200000
- 25998 words of font info for 71 fonts, out of 3000000 for 9000
+ 7050 strings out of 493633
+ 103314 string characters out of 3143378
+ 183438 words of memory out of 3000000
+ 10178 multiletter control sequences out of 15000+200000
+ 28475 words of font info for 74 fonts, out of 3000000 for 9000
  831 hyphenation exceptions out of 8191
  35i,6n,28p,263b,471s stack positions out of 5000i,500n,10000p,200000b,50000s
 {/usr/local/texlive/2011/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
@@ -575,16 +740,18 @@ Here is how much of TeX's memory you used:
 /usr/local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></u
 sr/local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr
 /local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/l
-ocal/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/loca
-l/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmsltt10.pfb></usr/loc
-al/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/loca
-l/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/
-texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/t
-exlive/2011/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb>
-Output written on notebook.pdf (11 pages, 125829 bytes).
+ocal/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/loca
+l/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/t
+exlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmsltt10.pfb></usr/local/
+texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/t
+exlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/tex
+live/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texl
+ive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/texli
+ve/2011/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb>
+Output written on notebook.pdf (27 pages, 210195 bytes).
 PDF statistics:
- 132 PDF objects out of 1000 (max. 8388607)
- 106 compressed objects within 2 object streams
- 25 named destinations out of 1000 (max. 500000)
- 33 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 222 PDF objects out of 1000 (max. 8388607)
+ 177 compressed objects within 2 object streams
+ 49 named destinations out of 1000 (max. 500000)
+ 38 words of extra memory for PDF output out of 10000 (max. 10000000)
 

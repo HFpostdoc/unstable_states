@@ -34,6 +34,92 @@
 %\setcounter{secnumdepth}{-1}  %activate to start numbering from one
 %on the second page
 
+\section{8 Jul 2014}
+
+
+Eigenvalues indicate system dynamics.
+
+A system is stable if it eventually returns to a fixed point after a
+disturbance.
+
+A system is unstable if it is not stable.
+
+For imaginary (complex) eigenvalues:
+
+\begin{itemize}
+\item Negative Real Part - Stable. Damping is a requirement of stability. 
+\item Positive Real Part - Unstable. Increasing amplitude is unstable.
+\item Zero Real Part - Unstable. Oscillators are unstable, as they
+  will not go back to a steady state post-disturbance
+\item The complex part will not affect the stability. 
+\end{itemize}
+
+Real eigenvalues:
+\begin{itemize}
+\item Zero eigenvalues: unstable
+\item All Positive: unstable
+\item All Negative: unstable
+\item Both positive and negative: unstable, saddle.
+\item Repeated: needs further analysis. For the special case of two
+  eigenvalues, both positive = unstable, both negative = stable.
+\end{itemize}
+
+Check out this figure:
+
+\includegraphics[]{../docs/Eigenvalue_graphs.jpg}
+
+
+<<eval=false>>=
+  source('../src/sens2_ews.R')
+library(ecodist)
+fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x <- x[1:12500,]
+x[x<0] <- 0
+x <- t(x)
+
+##Obtain equations
+
+
+@ 
+
+\section{3 Jul 2014}
+
+\textit{Foundations of Resilience Thinking}
+
+\begin{itemize}
+\item Resilience = size and steepness of attractor basins
+\item Distinguishes between: near equilibrium behavior and long term persistence
+\item Panarchy = Processes operating at different scales permit organization
+\end{itemize}
+
+\textit{How does NMDS treat mutual information?}
+
+<<eval=false>>=
+  source('../src/sens2_ews.R')
+library(ecodist)
+fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x <- x[1:12500,]
+x[x<0] <- 0
+x <- t(x)
+
+###kernel density information
+d1 <- density(x[1,])
+d2 <- density(x[2,])
+
+plot(density(x[1,])$x,density(x[3,])$x)
+points(-2:12,-2:12)
+
+###
+
+
+
+@ 
+
+
 \section{2 Jul 2014}
 
 Mutual Information for Time Series
@@ -41,7 +127,7 @@ Mutual Information for Time Series
 This is an attempt to implement methods from Moniz et al. (2007)
 Application of Information Theory Methods to Food Web Reconstruction
 
-<<>>=
+<<eval=false>>=
   source('../src/sens2_ews.R')
 library(entropy)
 library(vegan)
@@ -61,7 +147,6 @@ x <- t(x)
 ## }
 mid.m <- dget(file='../data/midm.rda')
 mid.m <- round(mid.m,7)
-range(mid.m)
 pca <- princomp(as.dist(mid.m))
 nms <- nmds.min(nmds(as.dist(mid.m),2,2))
 plot(nms)
@@ -70,7 +155,7 @@ envfit(env=fps,ord=nms)
 
 @ 
 
-<<>>=
+<<eval=false>>=
   library(entropy)
 y2d <- rbind( sample(1:100,100), sample(1:100,100) )
 y2d. = rbind( sample(1:100,100), sample(1:100,100) )
@@ -88,7 +173,7 @@ plot(test.~test);abline(lm(range(test.)~range(test)))
 
 Reading Beltrami:
 
-<<>>=
+<<eval=false>>=
 ##For N. = rN
 ##N(t) = N(0)e^rt
 
@@ -106,7 +191,7 @@ plot(Nt[,ncol(Nt)]~t,xlim=range(t),ylim=range(Nt),type='l',)
 
 
 
-<<>>=
+<<eval=false>>=
   library('nimble')
 
 @ 
@@ -115,7 +200,7 @@ plot(Nt[,ncol(Nt)]~t,xlim=range(t),ylim=range(Nt),type='l',)
 Alternative state detection?
 Should we be looking for break points?
 
-<<>>=
+<<eval=false>>=
 source('../src/sens2_ews.R')
   fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
 x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
@@ -419,10 +504,11 @@ plot(A,type='l',ylab=expression(O[2]))
 
 Note that this is a correction from the printed version in PNAS
 
-<<>>=
+<<eval=false>>=
 y <- NULL
 a <- 20
-b
+##b
+
 for (i in 1:17){ y[i] <- 20*exp(-.1395*(i-1))}
 
 plot(c(0:16), y, xlim=c(0,16), ylim=c(0,20))
