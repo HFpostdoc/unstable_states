@@ -34,7 +34,164 @@
 %\setcounter{secnumdepth}{-1}  %activate to start numbering from one
 %on the second page
 
+\section{14 Jul 2014}
+
+Counting ``break points'':
+
+<<>>=
+source('../src/sens2_ews.R')
+source('../src/unstable_states.R')
+fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x <- x[1:12500,]
+x[x<0] <- 0
+###For each day, get the maximum value and 
+###then table them within a rounding threshold
+cx <- x[,5]
+cx[cx<=0.03] <- 0
+y <- cx
+f <- 0
+s <- 1
+for (i in 1:(length(y)-1)){
+  if (y[i]==0&y[i+1]!=0){s <- c(s,i)}else if (y[i]!=0&y[i+1]==0){f <- c(f,i)}
+}
+f <- f[-1]
+day.breaks <- rbind(s,f)
+d.max <- apply(x,2,function(x,day.breaks) daily.max(x,day.breaks=day.breaks),day.breaks=day.breaks)
+l.dm <- apply(d.max,2,function(x) length(unique(x)))
+pairs(data.frame(l.dm,fps))
+###3D
+library(rgl)
+pcol <- heat.colors(max(l.dm))[l.dm]
+plot3d(fps[,c(2,4,5)],type='s',col=pcol)
+
+@ 
+
+\section{10 Jul 2014}
+
+<<>>=
+library(entropy)
+my.mi <- function(x,y,nbin=15){
+  mi.empirical(discretize2d(y, x, numBins1=nbin, numBins2=nbin))
+}
+###
+fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x <- x[1:12500,]
+x[x<0] <- 0
+###
+## mi.mat <- array(NA,dim=c(ncol(x),ncol(x)))
+## for (i in 1:ncol(x)){
+##   for (j in 1:ncol(x)){
+##     if (i>j){mi.mat[i,j] <- my.mi(x[,i],x[,j])}
+##     print(paste(i,j))
+##   }
+## }
+mi.mat <- dget(file='../data/mi_mat.rda')
+diag(mi.mat) <- 0;mi.mat[upper.tri(mi.mat)] <- 0;mi.mat <- mi.mat + t(mi.mat)
+heatmap(mi.mat)
+hist(mi.mat)
+
+###Temporal mutual information
+par(mfrow=c(1,2))
+for (t in seq(10,2,length=2)){
+  tmi <- 0
+  for (i in 1:ncol(x)){
+    tmi[i] <- my.mi(x[(t):nrow(x),i],x[1:(nrow(x)-(t-1)),i])
+  }
+  plot(tmi,pch=19,cex=0.5)
+}
+
+###
+breaks <- c(1,1.5)
+par(mfrow=c(2,2))
+plot(tmi,pch=19,cex=0.5,ylab='Temporal Mutual Information (t vs t+1)')
+abline(h=c(1,1.5),lty=2)
+plot(x[,(1:ncol(x))[tmi<breaks[1]][1]],type='l',ylim=range(x),ylab=expression(O[2]),xlab='Time',main='0 < TMI < 1')
+for (i in (1:ncol(x))[tmi<breaks[1]]){lines(x[,i])}
+plot(x[,(1:ncol(x))[tmi>=breaks[1]&tmi<breaks[2]][1]],type='l',ylim=range(x),ylab=expression(O[2]),xlab='Time',main='1 < TMI < 1.5')
+for (i in (1:ncol(x))[tmi>=breaks[1]&tmi<breaks[2]]){lines(x[,i])}
+plot(x[,(1:ncol(x))[tmi>=breaks[2]][1]],type='l',ylim=range(x),ylab=expression(O[2]),xlab='Time',main='1.5 < TMI < 2')
+for (i in (1:ncol(x))[tmi>=breaks[2]]){lines(x[,i])}
+
+###tmi pairs plot
+cut2 <- function(x, breaks) {
+  r <- range(x)
+  b <- seq(r[1], r[2], length=2*breaks+1)
+  brk <- b[0:breaks*2+1]
+  mid <- b[1:breaks*2]
+  brk[1] <- brk[1]-0.01
+  k <- cut(x, breaks=brk, labels=FALSE)
+  mid[k]
+}
+tmi.bins <- round(cut2(tmi,15),3)
+tmi.col <- heat.colors(length(unique(tmi.bins)))[as.numeric(factor(tmi.bins))]
+library(rgl)
+plot3d(fps[,c(2,4,5)],type='s',col=tmi.col)
+
+@ 
+
+<<>>=
+#install.packages(entropy) if you don't have the entropy package 
+require(entropy) 
+x <- runif(1000)
+y.seq <- seq(0,0.5,by=0.1)
+y <- sapply(y.seq,function(s,x) rnorm(length(x),x,s),x=x)
+y <- cbind(y,runif(length(x))*10)
+y.seq <- c(y.seq,0.65)
+data <- data.frame(x=x,y=y)
+pairs(data)
+mutualInfo <- 0
+for (i in 1:ncol(y)){
+  disc <- discretize2d(y[,i], x, numBins1=15, numBins2=15)
+  mutualInfo[i] <- mi.empirical(disc)
+}
+plot(mutualInfo~y.seq,type='p',pch=19)
+lines(spline(mutualInfo~y.seq,n=100))
+abline(h=seq(0.1,0.5,by=0.1),lty=2)
+
+@ 
+
+\section{9 Jul 2014}
+
+Distance of ecosystem models from steady-state:
+
+<<>>=
+  library(enaR)
+data(enaModels)
+check <- unlist(lapply(enaModels,ssCheck))
+sum(check)/length(check)
+ubm <- enaModels[check==FALSE] #un-balanced models
+bm <- lapply(ubm,balance)
+
+###Model comparison function
+enaModcomp <- function(x,y){
+  x.flow <- x%n%'flow'
+  y.flow <- y%n%'flow'
+  x.in <- x%v%'input'
+  y.in <- y%v%'input'
+  x.out <- x%v%'output'
+  y.out <- y%v%'output'
+  sqrt(sum(c((x.flow-y.flow)^2,(x.in-y.in)^2,(x.out-y.out)^2)))
+}
+
+D.mods <- 0
+for (i in 1:length(ubm)){
+  D.mods[i] <- enaModcomp(ubm[[i]],bm[[i]])
+}
+par(mfrow=c(1,3))
+plot(density(D.mods))
+plot(density(D.mods[-3]))
+plot(density(D.mods[D.mods<100]))
+range(D.mods)
+
+@ 
+
+
 \section{8 Jul 2014}
+
 
 
 Eigenvalues indicate system dynamics.

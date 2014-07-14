@@ -3,6 +3,15 @@
 ###Code = MKLau
 ###Initiated 21May2014
 
+###Daily max
+daily.max <- function(y,day.breaks){
+  out <- 0
+  for (i in 1:ncol(day.breaks)){
+    out[i] <- max(y[day.breaks[1,i]:day.breaks[2,i]])[1]
+  }
+  return(out)
+}
+
 ###Find the start and end points for days in the model output
 find.days <- function(y){
   f <- 0
