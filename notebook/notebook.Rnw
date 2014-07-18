@@ -34,6 +34,71 @@
 %\setcounter{secnumdepth}{-1}  %activate to start numbering from one
 %on the second page
 
+\section{18 Jul 2014}
+
+O2 figures for Aaron:
+
+<<>>=
+source('../src/sens2_ews.R')
+source('../src/unstable_states.R')
+source('../src/table2plot.R')
+###
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x <- x[1:12500,]
+x[x<0] <- 0
+###
+nb <- 6
+pchunk <- array(c(seq(1,ncol(x),by=(ncol(x)/nb)),seq((ncol(x)/nb),ncol(x),by=(ncol(x)/nb))),dim=c(nb,2))
+for (i in 1:nrow(pchunk)){
+  fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+  start <- pchunk[i,1]
+  end <- pchunk[i,2]
+  fps <- fps[start:end,]
+  cell.layout <- (1:((ncol(fps)+1)*(nrow(fps)+1)))
+  table.content <- c(
+                     c(colnames(fps)[1],fps[,1]),
+                     c(colnames(fps)[2],fps[,2]),
+                     c(colnames(fps)[3],fps[,3]),
+                     c(colnames(fps)[4],fps[,4]),
+                     c(colnames(fps)[5],fps[,5]),
+                     c(colnames(fps)[6],fps[,6])
+                     )
+  o2.val <- x[,start:end]
+  pdf(file=paste('../results/spark_',start,'_',end,'.pdf',sep=''))
+  layout(matrix(cell.layout, nrow=(nrow(fps)+1), ncol=(ncol(fps)+1), byrow=FALSE))
+###
+  for (i in 1:length(table.content)){
+    display.cell(table.content[i], cex=0.75)
+  }
+  display.cell(expression(O[2]), cex=0.75)
+  for (i in 1:ncol(o2.val)){
+    display.sparkline(1:length(o2.val[,i]), o2.val[,i])
+  }
+  dev.off()
+}
+
+@ 
+
+\section{15 Jul 2014}
+
+Check out the following R packages:
+
+<<>>=
+library('TSdist')
+library('synchrony')
+library('clusterSim')
+source('../src/sens2_ews.R')
+source('../src/unstable_states.R')
+fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x <- x[1:12500,]
+x[x<0] <- 0
+
+
+@ 
+
 \section{14 Jul 2014}
 
 Counting ``break points'':
@@ -71,7 +136,8 @@ plot3d(fps[,c(2,4,5)],type='s',col=pcol)
 \section{10 Jul 2014}
 
 <<>>=
-library(entropy)
+  
+  library(entropy)
 my.mi <- function(x,y,nbin=15){
   mi.empirical(discretize2d(y, x, numBins1=nbin, numBins2=nbin))
 }
