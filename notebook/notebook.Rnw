@@ -34,6 +34,37 @@
 %\setcounter{secnumdepth}{-1}  %activate to start numbering from one
 %on the second page
 
+\section{02 Sep 2014}
+Time lag plots for O2 time series
+
+<<>>=
+source('~/projects/ccm/ccm.R')
+###load 100 min average data and chop down to the first 12,500 time points
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x <- x[1:12500,]
+x[x<0] <- 0
+###generate time lags
+t.lags <- time.lags(x[,1],E=3,tau=25)
+pairs(t.lags,pch=19,cex=0.25)
+t.lags <- time.lags(x[,51],E=3,tau=25)
+pairs(t.lags,pch=19,cex=0.25)
+t.lags <- time.lags(x[,91],E=3,tau=25)
+pairs(t.lags,pch=19,cex=0.25)
+###Lines
+t.lags <- time.lags(x[,1],E=3,tau=25)
+plot(t.lags[,1:2],pch=19,cex=0.25,type='l')
+
+###Color
+t.lags <- time.lags(x[,1],E=3,tau=25)
+plot(t.lags[,1:2],pch=19,cex=0.25,col=rainbow(nrow(t.lags)))
+t.lags <- time.lags(x[,51],E=3,tau=25)
+plot(t.lags[,1:2],pch=19,cex=0.25,col=rainbow(nrow(t.lags)))
+t.lags <- time.lags(x[,91],E=3,tau=25)
+plot(t.lags[,1:2],pch=19,cex=0.25,col=rainbow(nrow(t.lags)))
+
+@ 
+
 \section{18 Jul 2014}
 
 O2 figures for Aaron:
