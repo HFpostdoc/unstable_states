@@ -1,32 +1,24 @@
 unstable_states
 ===============
 
-r values for cycle thresholds:
-- 2 cycles: 2
-- 4 cycles: 2.45
-- 8 cycles: 2.547
-- 16 cycles: 2.567
+*Intro*
+- Ecosystem dynamics a brief history (phenomenology -> succession -> diversity-stability -> systems theory -> alternative stable states
+- Questions:
+1. What theory or math can we use if stable states are the exception?
+2. What would theory look like if we don't start with a concept of stability?
+3. What do dynamics look like in systems without stable states?
 
-Try audio output?
+*Equilibrium: the Utility of Balance*
+- Equilibrium = base model
+- Equilibrium = mathematical tractability
 
-What theory or math can we use if stable states are the exception?
+*Equilibrium: What's lost in the balance?* 
+- Support for equilibrium? 
+- Support for non-equilibrium?
 
-What would theory look like if we don't start with a concept of stability?
-
-What do dynamics look like in systems without stable states?
-
-Using the logistic difference model of population growth developed by
-May (1976), simulate changes in the model parameter (a) at different
-locations along the gradient of stationary to chaotic oscillations.
-
-Variables
-- inital alpha
-- final alpha
-- number of alphas
-- alpha step size
-- generation time
-- N vs X
-
-Response
-- look at transient dynamics
-- look at oscillating dynamics
+*Leaving Equilibrium Behind: New Approaches and The Arrow of Time*
+- control theory
+- complex systems theory
+- convergent cross mapping
+- introducing dynamics
+- evolutionary dynamics (community genetics)
