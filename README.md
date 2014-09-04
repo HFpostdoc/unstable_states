@@ -1,8 +1,8 @@
 unstable_states
 ===============
 
-*Intro*
-- Ecosystem dynamics a brief history (phenomenology -> succession -> diversity-stability -> systems theory -> alternative stable states
+*A brief history of Ecosystem dynamics* 
+- phenomenology -> succession -> diversity-stability -> systems theory -> alternative stable states
 - Questions:
 1. What theory or math can we use if stable states are the exception?
 2. What would theory look like if we don't start with a concept of stability?
