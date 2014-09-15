@@ -15,6 +15,7 @@ unstable_states
 *Equilibrium: What's lost in the balance?* 
 - Support for equilibrium? 
 - Support for non-equilibrium?
+- Transience and state variability (Fukami paper)
 
 *Leaving Equilibrium Behind: New Approaches and The Arrow of Time*
 - control theory
@@ -22,3 +23,4 @@ unstable_states
 - convergent cross mapping
 - introducing dynamics
 - evolutionary dynamics (community genetics)
+
