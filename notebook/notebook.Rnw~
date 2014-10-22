@@ -1,6 +1,6 @@
 %%%NOTE: for help with latex symbols look here http://mirror.unl.edu/ctan/info/symbols/comprehensive/symbols-a4.pdf.
 \documentclass[12pt]{article}
-\usepackage{color}
+\usepackage{color
 \usepackage{cite}
 \usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
 %\usepackage{pdflscape}        %single page landscape
@@ -18,7 +18,7 @@
                        %\hypertarget{label}{link caption}
 \linespread{1.5}
 
-\title{}
+\title{Unstable States: Community dynamics in a chaotic world}
 \author{M.K. Lau}
 %\date{}                                           % Activate to display a given date or no date
 
@@ -34,25 +34,1514 @@
 %\setcounter{secnumdepth}{-1}  %activate to start numbering from one
 %on the second page
 
+\section{22 Oct 2014}
 
-%\section{}
-%\subsection{}
+<<>>=
+  ##https://code.google.com/p/yahoo-finance-managed/wiki/csvHistQuotesDownload
+  ##http://en.wikipedia.org/wiki/List_of_financial_data_feeds
+  ##http://stackoverflow.com/questions/5246843/how-to-get-a-complete-list-of-ticker-symbols-from-yahoo-finance
+  ###index <- read.csv('http://www.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=nasdaq&render=download')
+  aapl <- read.csv("http://ichart.finance.yahoo.com/table.csv?s=AAPL", sep=",", header=1)
+  plot(Volume~Date,data=aapl,type='l')
 
-%% %%Figure construction
-%% <<echo=false,results=hide,label=fig1,include=false>>=
-%% @ 
+
+@ 
+
+<<>>=
+  ##https://code.google.com/p/yahoo-finance-managed/wiki/csvHistQuotesDownload
+  ##http://en.wikipedia.org/wiki/List_of_financial_data_feeds
+  ##http://stackoverflow.com/questions/5246843/how-to-get-a-complete-list-of-ticker-symbols-from-yahoo-finance
+ 
+
+@ 
+
+<<>>=
+  index <- read.csv('http://finviz.com/export.ashx?v=111&&o=ticker')
+            stocks <- sort(sample(index$Ticker,5))
+            data <- list()
+            for (i in 1:length(stocks)){
+              print(as.character(stocks[i]))
+              data[[i]] <- read.csv(paste("http://ichart.finance.yahoo.com/table.csv?s=",as.character(stocks[i]),sep=''))
+            }
+            names(data) <- stocks
+@ 
+
+<<>>=
+  plot(data[[5]]$Close)
+@ 
+
+\section{30 Sep 2014}
+
+Data from Portal AZ
+
+Try out CCM using upscaling via averaging and downscaling via
+smoothing (e.g. precip). 
+
+<<>>=
+
+###Http://portal.weecology.org/portal_data
+  ab8802 <- read.csv('../data/Portal_ant_bait_19882002.csv')
+ac8802 <- read.csv('../data/Portal_ant_colony_19882002.csv')
+rod7702 <- read.csv('../data/Portal_rodents_19772002.csv')
+psa8902 <- read.csv('../data/Portal_plant_summer_annual_19892002.csv')
+pre8089 <- read.csv('../data/Portal_precipitation_19801989.csv')
+pre8902 <- read.csv('../data/Portal_precipitation_19892002.csv')
+colnames(ab8802)
+colnames(ac8802)
+colnames(rod7702)
+colnames(psa8902)
+colnames(pre8089)
+colnames(pre8902)
+
+@ 
+
+\section{15-19 Sep 2014}
+Model 
+
+<<>>=
 
 
-%% %%Figure plotting
-%% \begin{figure} 
-%% \begin{center} 
-%% <<label=fig1,fig=TRUE,echo=false>>=
-%% <<fig1>> 
-%% @ 
-%% \end{center} 
-%% \caption{}
-%% \label{fig:one}
-%% \end{figure}
+@ 
+
+<<>>=
+sapply(dir('~/projects/packages/ccm/R',full.names=TRUE),source)
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x[x<0] <- 0
+###load 100 min average data and chop down to the first 12500 time points
+fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+trt <- fps$Prey;trt[trt!=0] <- 1
+combo <- apply(fps,1,function(x) paste(x[2:6],sep='',collapse=''))
+param <- apply(fps,1,function(x) paste(x[3:6],sep='',collapse=''))
+out <- list()
+for (i in 1:length(combo)){
+    x.c <- x[,param==param[i]&trt==0]
+    if (trt[i]==1){
+    x.t <- x[,param==param[i]&trt==1&combo==combo[i]]
+    out[[i]] <- c(x.c,x.t)
+  }else{
+    out[[i]] <- c(x.c,x.c)
+  }
+}
+
+out <- out[fps$Prey!=0]
+fps. <- fps[fps$Prey!=0,]
+
+
+###Sparklines
+###Panel for 1ug intervention
+ug1 <- out[fps.$Prey==1]
+fps1 <- fps.[fps.$Prey==1,]
+ab1 <- paste(fps1$a,fps1$b,sep='')
+ab1.col <- rainbow(nlevels(factor(ab1)))[as.numeric(factor(ab1))]
+par(mfrow=c(5,3),mai=c(0,0,0,0))
+for (j in sort((unique(fps1$d)),decreasing=TRUE)){
+  for (k in sort((unique(fps1$K)))){
+    ug1.p <- ug1[fps1$d==j&fps1$K==k]
+    fps1.p <- fps1[fps1$d==j&fps1$K==k,]
+    col.p <- ab1.col[fps1$d==j&fps1$K==k]
+    for (i in 1:length(ug1.p)){
+      if (i == 1){
+        plot(ug1.p[[i]],type='l',frame.plot=FALSE,xaxt='n',yaxt='n',
+             col=col.p[i],lwd=0.5,ylim=range(unlist(ug1.p)))
+                }else{
+        lines(ug1.p[[i]],col=col.p[i],lwd=0.5)
+      }
+    }
+  }
+}
+
+###Panel for 5ug intervention
+ug5 <- out[fps.$Prey==5]
+fps5 <- fps.[fps.$Prey==5,]
+ab5 <- paste(fps5$a,fps5$b,sep='')
+ab5.col <- rainbow(nlevels(factor(ab5)))[as.numeric(factor(ab5))]
+par(mfrow=c(5,3),mai=c(0,0,0,0))
+for (j in sort((unique(fps5$d)),decreasing=TRUE)){
+  for (k in sort((unique(fps5$K)))){
+    ug5.p <- ug5[fps5$d==j&fps5$K==k]
+    fps5.p <- fps5[fps5$d==j&fps5$K==k,]
+    col.p <- ab5.col[fps5$d==j&fps5$K==k]
+    for (i in 1:length(ug5.p)){
+      if (i == 1){
+        plot(ug5.p[[i]],type='l',frame.plot=FALSE,xaxt='n',yaxt='n',
+             col=col.p[i],lwd=0.5,ylim=range(unlist(ug5.p)))
+      }else{
+        lines(ug5.p[[i]],col=col.p[i],lwd=0.5)
+      }
+    }
+  }
+}
+
+###Maxima
+findPeaks <- function(x,x.val=TRUE){
+  d <- diff(sign(diff(x)))
+  d <- (1:length(x))[sign(d)==-1&d!=0]
+  if (x.val){
+    x <- round(x[d],7)    
+    return(x[x!=0])
+  }else{
+    return(d)  
+  }
+}
+
+###Panel for 1ug intervention
+ug1 <- out[fps.$Prey==1]
+ug1 <- lapply(ug1,findPeaks)
+fps1 <- fps.[fps.$Prey==1,]
+ab1 <- paste(fps1$a,fps1$b,sep='')
+ab1.col <- rainbow(nlevels(factor(ab1)))[as.numeric(factor(ab1))]
+par(mfrow=c(5,3),mai=c(0,0,0,0))
+for (j in sort((unique(fps1$d)),decreasing=TRUE)){
+  for (k in sort((unique(fps1$K)))){
+    ug1.p <- ug1[fps1$d==j&fps1$K==k]
+    fps1.p <- fps1[fps1$d==j&fps1$K==k,]
+    col.p <- ab1.col[fps1$d==j&fps1$K==k]
+    for (i in 1:length(ug1.p)){
+      if (i == 1){
+        plot(ug1.p[[i]],type='l',frame.plot=FALSE,xaxt='n',yaxt='n',
+             col=col.p[i],lwd=0.5,ylim=range(unlist(ug1.p)))
+             }else{
+        lines(jitter(ug1.p[[i]],factor=0),col=col.p[i],lwd=0.5)
+      }
+    }
+  }
+}
+
+###Panel for 5ug intervention
+ug5 <- out[fps.$Prey==5]
+ug5 <- lapply(ug5,findPeaks)
+fps5 <- fps.[fps.$Prey==5,]
+ab5 <- paste(fps5$a,fps5$b,sep='')
+ab5.col <- rainbow(nlevels(factor(ab5)))[as.numeric(factor(ab5))]
+par(mfrow=c(5,3),mai=c(0,0,0,0))
+for (j in sort((unique(fps5$d)),decreasing=TRUE)){
+  for (k in sort((unique(fps5$K)))){
+    ug5.p <- ug5[fps5$d==j&fps5$K==k]
+    fps5.p <- fps5[fps5$d==j&fps5$K==k,]
+    col.p <- ab1.col[fps5$d==j&fps5$K==k]
+    for (i in 1:length(ug5.p)){
+      if (i == 1){plot(ug5.p[[i]],type='l',frame.plot=FALSE,xaxt='n',yaxt='n',
+            col=col.p[i],lwd=0.5,ylim=range((unlist(ug5.p))))
+                }else{
+        lines(jitter(ug5.p[[i]],factor=0),col=col.p[i],lwd=0.5)
+      }
+    }
+  }
+}
+
+###Shadowmanifolds
+###Panel for 1ug intervention
+ug1 <- out[fps.$Prey==1]
+ug1 <- lapply(ug1,createShadowManifold,E=3,tau=15)
+fps1 <- fps.[fps.$Prey==1,]
+ab1 <- paste(fps1$a,fps1$b,sep='')
+ab1.col <- rainbow(nlevels(factor(ab1)))[as.numeric(factor(ab1))]
+par(mfrow=c(5,3),mai=c(0,0,0,0))
+for (j in sort((unique(fps1$d)),decreasing=TRUE)){
+  for (k in sort((unique(fps1$K)))){
+    ug1.p <- ug1[fps1$d==j&fps1$K==k]
+    fps1.p <- fps1[fps1$d==j&fps1$K==k,]
+    col.p <- ab1.col[fps1$d==j&fps1$K==k]
+    for (i in 1:length(ug1.p)){
+      if (i == 1){
+        plot(t(ug1.p[[i]])[,1:2],type='l',frame.plot=FALSE,xaxt='n',yaxt='n',
+             col=col.p[i],lwd=0.5,ylim=range(unlist(ug1.p)))
+      }else{
+        lines(t(ug1.p[[i]])[,1:2],col=col.p[i],pch=0.5)
+      }
+    }
+  }
+}
+
+###Panel for 5ug intervention
+ug5 <- out[fps.$Prey==5]
+ug5 <- lapply(ug5,createShadowManifold,E=3,tau=15)
+fps5 <- fps.[fps.$Prey==5,]
+ab5 <- paste(fps5$a,fps5$b,sep='')
+ab5.col <- rainbow(nlevels(factor(ab5)))[as.numeric(factor(ab5))]
+par(mfrow=c(5,3),mai=c(0,0,0,0))
+for (j in sort((unique(fps5$d)),decreasing=TRUE)){
+  for (k in sort((unique(fps5$K)))){
+    ug5.p <- ug5[fps5$d==j&fps5$K==k]
+    fps5.p <- fps5[fps5$d==j&fps5$K==k,]
+    col.p <- ab5.col[fps5$d==j&fps5$K==k]
+    for (i in 1:length(ug5.p)){
+      if (i == 1){plot(t(ug5.p[[i]])[,1:2],type='l',frame.plot=FALSE,xaxt='n',yaxt='n',
+            col=col.p[i],lwd=0.5,ylim=range(unlist(ug5.p)))
+                }else{
+        lines(t(ug5.p[[i]])[,1:2],col=col.p[i],lwd=0.5)
+      }
+    }
+  }
+}
+
+
+###Maxima correlation
+library(scatterplot3d)
+xm <- apply(x,2,findPeaks)
+xm.l <- unlist(lapply(xm,length))
+xm.c <- unlist(lapply(xm,function(x) cor(x,(1:length(x)))))
+xm.c[is.na(xm.c)] <- 0
+pairs(data.frame(xm.c,fps[,c(2:6)]))
+
+###Rotating 3d plot
+par(mfrow=c(2,2))
+scatterplot3d(data.frame(fps[fps$Prey==1,c(5,6)],xm.c[fps$Prey==1]),
+      angle=75,color=as.numeric(factor(fps$a[fps$Prey==1])),pch=19,zlab='2nd Deriv Correlation')
+scatterplot3d(data.frame(fps[fps$Prey==1,c(5,6)],xm.c[fps$Prey==1]),
+      angle=245,color=as.numeric(factor(fps$a[fps$Prey==1])),pch=19,zlab='2nd Deriv Correlation')
+scatterplot3d(data.frame(fps[fps$Prey==1,c(5,6)],xm.c[fps$Prey==1]),
+      angle=105,color=as.numeric(factor(fps$a[fps$Prey==1])),pch=19,zlab='2nd Deriv Correlation')
+scatterplot3d(data.frame(fps[fps$Prey==1,c(5,6)],xm.c[fps$Prey==1]),
+      angle=285,color=as.numeric(factor(fps$a[fps$Prey==1])),pch=19,zlab='2nd Deriv Correlation')
+
+@ 
+
+
+
+\section{11 Sep 2014}
+
+Making plots of rho at Tp
+
+<<>>=
+sapply(dir('~/projects/packages/ccm/R',full.names=TRUE),source)
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x[x<0] <- 0
+###load 100 min average data and chop down to the first 12,500 time points
+fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+trt <- fps$Prey;trt[trt!=0] <- 1
+combo <- apply(fps,1,function(x) paste(x[2:6],sep='',collapse=''))
+param <- apply(fps,1,function(x) paste(x[3:6],sep='',collapse=''))
+out <- list()
+for (i in 1:length(combo)){
+    x.c <- x[,param==param[i]&trt==0]
+  if (trt[i]==1){
+    x.t <- x[,param==param[i]&trt==1&combo==combo[i]]
+    out[[i]] <- c(x.c,x.t)
+  }else{
+    out[[i]] <- c(x.c,x.c)
+  }
+}
+
+nTp <- 20
+x.sm <- list()
+for (i in 1:length(out)){
+  print(I(i/length(out)))
+  x.sm[[i]] <- createShadowManifold(out[[i]],E=nTp,tau=2)
+}
+x.sm <- lapply(x.sm,t)
+rho.xsm <- list()
+for (i in 1:length(out)){
+  rho.xsm[[i]] <- cor(cbind(out[[i]][1:nrow(x.sm[[i]])],x.sm[[i]]))
+}
+
+
+
+@ 
+
+
+Simulate O2 and prey remaining values:
+
+<<>>=
+  
+
+@ 
+
+Using the sugihara method:
+
+<<>>=
+sapply(dir('~/projects/packages/ccm/R/',full.names=TRUE),source)
+###
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+#x <- x[1:12500,]
+x[x<0] <- 0
+###load 100 min average data and chop down to the first 12,500 time points
+fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+trt <- fps$Prey;trt[trt!=0] <- 1
+combo <- apply(fps,1,function(x) paste(x[2:6],sep='',collapse=''))
+param <- apply(fps,1,function(x) paste(x[3:6],sep='',collapse=''))
+out <- list()
+for (i in 1:length(combo)){
+    x.c <- x[,param==param[i]&trt==0]
+  if (trt[i]==1){
+    x.t <- x[,param==param[i]&trt==1&combo==combo[i]]
+    out[[i]] <- c(x.c,x.t)
+  }else{
+    out[[i]] <- c(x.c,x.c)
+  }
+}
+
+##Generate the shadowmanifold
+test <- createShadowManifold(X=out[[1]],E=3,tau=10)
+pairs(t(test),cex=0.25,pch=19,col=gl(2,I(length(out[[1]])/2)))
+
+@ 
+
+Remake sparklines:
+
+<<>>=
+x <- do.call(cbind,out)
+
+###
+nb <- 6
+pchunk <- array(c(seq(1,ncol(x),by=(ncol(x)/nb)),seq((ncol(x)/nb),ncol(x),by=(ncol(x)/nb))),dim=c(nb,2))
+for (i in 1:nrow(pchunk)){
+  fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+  start <- pchunk[i,1]
+  end <- pchunk[i,2]
+  fps <- fps[start:end,]
+  cell.layout <- (1:((ncol(fps)+1)*(nrow(fps)+1)))
+  table.content <- c(
+                     c(colnames(fps)[1],fps[,1]),
+                     c(colnames(fps)[2],fps[,2]),
+                     c(colnames(fps)[3],fps[,3]),
+                     c(colnames(fps)[4],fps[,4]),
+                     c(colnames(fps)[5],fps[,5]),
+                     c(colnames(fps)[6],fps[,6])
+                     )
+  o2.val <- x[,start:end]
+  pdf(file=paste('../results/spark_',start,'_',end,'.pdf',sep=''))
+  layout(matrix(cell.layout, nrow=(nrow(fps)+1), ncol=(ncol(fps)+1), byrow=FALSE))
+###
+  for (i in 1:length(table.content)){
+    display.cell(table.content[i], cex=0.75)
+  }
+  display.cell(expression(O[2]), cex=0.75)
+  for (i in 1:ncol(o2.val)){
+    display.sparkline(1:length(o2.val[,i]), o2.val[,i])
+  }
+  dev.off()
+}
+
+
+@ 
+
+
+\section{03-05 Sep 2014}
+
+Concatenate controls with treatments:
+
+
+
+<<>>=
+###
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+#x <- x[1:12500,]
+x[x<0] <- 0
+###load 100 min average data and chop down to the first 12,500 time points
+fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+trt <- fps$Prey;trt[trt!=0] <- 1
+combo <- apply(fps,1,function(x) paste(x[2:6],sep='',collapse=''))
+param <- apply(fps,1,function(x) paste(x[3:6],sep='',collapse=''))
+out <- list()
+for (i in 1:length(combo)){
+    x.c <- x[,param==param[i]&trt==0]
+  if (trt[i]==1){
+    x.t <- x[,param==param[i]&trt==1&combo==combo[i]]
+    out[[i]] <- c(x.c,x.t)
+  }else{
+    out[[i]] <- c(x.c,x.c)
+  }
+}
+
+plot(out[[1]],type='l',lwd=2)
+
+###Solving for the maxima and minima
+##Idea was inspired by:
+##http://stackoverflow.com/questions/6836409/finding-local-maxima-and-minima
+
+plot.diff <- function(tt){
+tt. <- diff(sign(diff(tt)))
+rtt <- tt[1:(length(tt)-(length(tt)-length(tt.)))]
+par(mfrow=c(1,2))
+if (length(rtt[tt.==-1&round(rtt,)>0.1])!=0){
+  plot(rtt[tt.==-1&round(rtt,)>0.1],type='l')
+  abline(lm(rtt[tt.==-1&round(rtt,)>0.1]~I(1:length(rtt[tt.==-1&round(rtt,)>0.1]))))
+}else{plot(c(0,0),type='l')}
+if (length(rtt[tt.==-2&round(rtt,)>0.1])!=0){
+  plot(rtt[tt.==-2&round(rtt,)>0.1],type='l')
+  abline(lm(rtt[tt.==-2&round(rtt,)>0.1]~I(1:length(rtt[tt.==-2&round(rtt,)>0.1]))))
+}else{plot(c(0,0),type='l')}
+
+}
+
+for (i in length(out):1){
+  plot.diff(out[[i]])
+  locator(1)
+}
+
+diff.cor <- function(tt){
+  tt. <- diff(sign(diff(tt)))
+  rtt <- tt[1:(length(tt)-(length(tt)-length(tt.)))]
+  out <- numeric()
+  if (length(rtt[tt.==-1&round(rtt,)>0.1])!=0){
+    out[1] <- cor(I(1:length(rtt[tt.==-1&round(rtt,)>0.1])),rtt[tt.==-1&round(rtt,)>0.1])
+  }else{out[1] <- 0}
+  if (length(rtt[tt.==-2&round(rtt,)>0.1])!=0){
+    out[2] <- cor(I(1:length(rtt[tt.==-2&round(rtt,)>0.1])),rtt[tt.==-2&round(rtt,)>0.1])
+  }else{out[2] <- 0}
+  return(out)
+}
+dc.l <- lapply(out,diff.cor)
+dc.m <- do.call(rbind,dc.l)
+head(dc.m)
+dc.d <- apply(dc.m,1,function(x) x[1]-x[2])
+library(rgl)
+plot3d(data.frame(dc.m[,1],fps[,4:6]),type='s',size=0.75,col=fps[,2]+1)
+plot3d(data.frame(dc.m[fps[,2]!=0,2],fps[fps[,2]!=0,4:6]),type='s',size=0.75,col=fps[fps[,2]!=0,2])
+plot3d(data.frame(dc.d[fps[,2]!=0],fps[fps[,2]!=0,4:6]),type='s',size=0.75,col=fps[fps[,2]!=0,2])
+
+###Multiple regression
+factors <- fps[fps[,2]!=0,2:6]
+y <- dc.d[fps[,2]!=0]
+summary(aov(y~Prey*a*K*d,data=factors))
+
+@ 
+
+
+\section{02 Sep 2014}
+Time lag plots for O2 time series
+
+<<>>=
+source('~/projects/ccm/ccm.R')
+###load 100 min average data and chop down to the first 12,500 time points
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x <- x[1:12500,]
+x[x<0] <- 0
+###generate time lags
+t.lags <- time.lags(x[,1],E=3,tau=25)
+pairs(t.lags,pch=19,cex=0.25)
+t.lags <- time.lags(x[,51],E=3,tau=25)
+pairs(t.lags,pch=19,cex=0.25)
+t.lags <- time.lags(x[,91],E=3,tau=25)
+pairs(t.lags,pch=19,cex=0.25)
+###Lines
+t.lags <- time.lags(x[,1],E=3,tau=25)
+plot(t.lags[,1:2],pch=19,cex=0.25,type='l')
+
+###Color
+t.lags <- time.lags(x[,1],E=3,tau=25)
+plot(t.lags[,1:2],pch=19,cex=0.25,col=rainbow(nrow(t.lags)))
+t.lags <- time.lags(x[,51],E=3,tau=25)
+plot(t.lags[,1:2],pch=19,cex=0.25,col=rainbow(nrow(t.lags)))
+t.lags <- time.lags(x[,91],E=3,tau=25)
+plot(t.lags[,1:2],pch=19,cex=0.25,col=rainbow(nrow(t.lags)))
+
+@ 
+
+\section{18 Jul 2014}
+
+O2 figures for Aaron:
+
+<<>>=
+source('../src/sens2_ews.R')
+source('../src/unstable_states.R')
+source('../src/table2plot.R')
+###
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+#x <- x[1:12500,]
+x[x<0] <- 0
+###
+nb <- 6
+pchunk <- array(c(seq(1,ncol(x),by=(ncol(x)/nb)),seq((ncol(x)/nb),ncol(x),by=(ncol(x)/nb))),dim=c(nb,2))
+for (i in 1:nrow(pchunk)){
+  fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+  start <- pchunk[i,1]
+  end <- pchunk[i,2]
+  fps <- fps[start:end,]
+  cell.layout <- (1:((ncol(fps)+1)*(nrow(fps)+1)))
+  table.content <- c(
+                     c(colnames(fps)[1],fps[,1]),
+                     c(colnames(fps)[2],fps[,2]),
+                     c(colnames(fps)[3],fps[,3]),
+                     c(colnames(fps)[4],fps[,4]),
+                     c(colnames(fps)[5],fps[,5]),
+                     c(colnames(fps)[6],fps[,6])
+                     )
+  o2.val <- x[,start:end]
+  pdf(file=paste('../results/spark_',start,'_',end,'.pdf',sep=''))
+  layout(matrix(cell.layout, nrow=(nrow(fps)+1), ncol=(ncol(fps)+1), byrow=FALSE))
+###
+  for (i in 1:length(table.content)){
+    display.cell(table.content[i], cex=0.75)
+  }
+  display.cell(expression(O[2]), cex=0.75)
+  for (i in 1:ncol(o2.val)){
+    display.sparkline(1:length(o2.val[,i]), o2.val[,i])
+  }
+  dev.off()
+}
+
+@ 
+
+\section{15 Jul 2014}
+
+Check out the following R packages:
+
+<<>>=
+library('TSdist')
+library('synchrony')
+library('clusterSim')
+source('../src/sens2_ews.R')
+source('../src/unstable_states.R')
+fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x <- x[1:12500,]
+x[x<0] <- 0
+
+
+@ 
+
+\section{14 Jul 2014}
+
+Counting ``break points'':
+
+<<>>=
+source('../src/sens2_ews.R')
+source('../src/unstable_states.R')
+fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x <- x[1:12500,]
+x[x<0] <- 0
+###For each day, get the maximum value and 
+###then table them within a rounding threshold
+cx <- x[,5]
+cx[cx<=0.03] <- 0
+y <- cx
+f <- 0
+s <- 1
+for (i in 1:(length(y)-1)){
+  if (y[i]==0&y[i+1]!=0){s <- c(s,i)}else if (y[i]!=0&y[i+1]==0){f <- c(f,i)}
+}
+f <- f[-1]
+day.breaks <- rbind(s,f)
+d.max <- apply(x,2,function(x,day.breaks) daily.max(x,day.breaks=day.breaks),day.breaks=day.breaks)
+l.dm <- apply(d.max,2,function(x) length(unique(x)))
+pairs(data.frame(l.dm,fps))
+###3D
+library(rgl)
+pcol <- heat.colors(max(l.dm))[l.dm]
+plot3d(fps[,c(2,4,5)],type='s',col=pcol)
+
+@ 
+
+\section{10 Jul 2014}
+
+<<>>=
+  
+  library(entropy)
+my.mi <- function(x,y,nbin=15){
+  mi.empirical(discretize2d(y, x, numBins1=nbin, numBins2=nbin))
+}
+###
+fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x <- x[1:12500,]
+x[x<0] <- 0
+###
+## mi.mat <- array(NA,dim=c(ncol(x),ncol(x)))
+## for (i in 1:ncol(x)){
+##   for (j in 1:ncol(x)){
+##     if (i>j){mi.mat[i,j] <- my.mi(x[,i],x[,j])}
+##     print(paste(i,j))
+##   }
+## }
+mi.mat <- dget(file='../data/mi_mat.rda')
+diag(mi.mat) <- 0;mi.mat[upper.tri(mi.mat)] <- 0;mi.mat <- mi.mat + t(mi.mat)
+heatmap(mi.mat)
+hist(mi.mat)
+
+###Temporal mutual information
+par(mfrow=c(1,2))
+for (t in seq(10,2,length=2)){
+  tmi <- 0
+  for (i in 1:ncol(x)){
+    tmi[i] <- my.mi(x[(t):nrow(x),i],x[1:(nrow(x)-(t-1)),i])
+  }
+  plot(tmi,pch=19,cex=0.5)
+}
+
+###
+breaks <- c(1,1.5)
+par(mfrow=c(2,2))
+plot(tmi,pch=19,cex=0.5,ylab='Temporal Mutual Information (t vs t+1)')
+abline(h=c(1,1.5),lty=2)
+plot(x[,(1:ncol(x))[tmi<breaks[1]][1]],type='l',ylim=range(x),ylab=expression(O[2]),xlab='Time',main='0 < TMI < 1')
+for (i in (1:ncol(x))[tmi<breaks[1]]){lines(x[,i])}
+plot(x[,(1:ncol(x))[tmi>=breaks[1]&tmi<breaks[2]][1]],type='l',ylim=range(x),ylab=expression(O[2]),xlab='Time',main='1 < TMI < 1.5')
+for (i in (1:ncol(x))[tmi>=breaks[1]&tmi<breaks[2]]){lines(x[,i])}
+plot(x[,(1:ncol(x))[tmi>=breaks[2]][1]],type='l',ylim=range(x),ylab=expression(O[2]),xlab='Time',main='1.5 < TMI < 2')
+for (i in (1:ncol(x))[tmi>=breaks[2]]){lines(x[,i])}
+
+###tmi pairs plot
+cut2 <- function(x, breaks) {
+  r <- range(x)
+  b <- seq(r[1], r[2], length=2*breaks+1)
+  brk <- b[0:breaks*2+1]
+  mid <- b[1:breaks*2]
+  brk[1] <- brk[1]-0.01
+  k <- cut(x, breaks=brk, labels=FALSE)
+  mid[k]
+}
+tmi.bins <- round(cut2(tmi,15),3)
+tmi.col <- heat.colors(length(unique(tmi.bins)))[as.numeric(factor(tmi.bins))]
+library(rgl)
+plot3d(fps[,c(2,4,5)],type='s',col=tmi.col)
+
+@ 
+
+<<>>=
+#install.packages(entropy) if you don't have the entropy package 
+require(entropy) 
+x <- runif(1000)
+y.seq <- seq(0,0.5,by=0.1)
+y <- sapply(y.seq,function(s,x) rnorm(length(x),x,s),x=x)
+y <- cbind(y,runif(length(x))*10)
+y.seq <- c(y.seq,0.65)
+data <- data.frame(x=x,y=y)
+pairs(data)
+mutualInfo <- 0
+for (i in 1:ncol(y)){
+  disc <- discretize2d(y[,i], x, numBins1=15, numBins2=15)
+  mutualInfo[i] <- mi.empirical(disc)
+}
+plot(mutualInfo~y.seq,type='p',pch=19)
+lines(spline(mutualInfo~y.seq,n=100))
+abline(h=seq(0.1,0.5,by=0.1),lty=2)
+
+@ 
+
+\section{9 Jul 2014}
+
+Distance of ecosystem models from steady-state:
+
+<<>>=
+  library(enaR)
+data(enaModels)
+check <- unlist(lapply(enaModels,ssCheck))
+sum(check)/length(check)
+ubm <- enaModels[check==FALSE] #un-balanced models
+bm <- lapply(ubm,balance)
+
+###Model comparison function
+enaModcomp <- function(x,y){
+  x.flow <- x%n%'flow'
+  y.flow <- y%n%'flow'
+  x.in <- x%v%'input'
+  y.in <- y%v%'input'
+  x.out <- x%v%'output'
+  y.out <- y%v%'output'
+  sqrt(sum(c((x.flow-y.flow)^2,(x.in-y.in)^2,(x.out-y.out)^2)))
+}
+
+D.mods <- 0
+for (i in 1:length(ubm)){
+  D.mods[i] <- enaModcomp(ubm[[i]],bm[[i]])
+}
+par(mfrow=c(1,3))
+plot(density(D.mods))
+plot(density(D.mods[-3]))
+plot(density(D.mods[D.mods<100]))
+range(D.mods)
+
+@ 
+
+
+\section{8 Jul 2014}
+
+
+
+Eigenvalues indicate system dynamics.
+
+A system is stable if it eventually returns to a fixed point after a
+disturbance.
+
+A system is unstable if it is not stable.
+
+For imaginary (complex) eigenvalues:
+
+\begin{itemize}
+\item Negative Real Part - Stable. Damping is a requirement of stability. 
+\item Positive Real Part - Unstable. Increasing amplitude is unstable.
+\item Zero Real Part - Unstable. Oscillators are unstable, as they
+  will not go back to a steady state post-disturbance
+\item The complex part will not affect the stability. 
+\end{itemize}
+
+Real eigenvalues:
+\begin{itemize}
+\item Zero eigenvalues: unstable
+\item All Positive: unstable
+\item All Negative: unstable
+\item Both positive and negative: unstable, saddle.
+\item Repeated: needs further analysis. For the special case of two
+  eigenvalues, both positive = unstable, both negative = stable.
+\end{itemize}
+
+Check out this figure:
+
+\includegraphics[]{../docs/Eigenvalue_graphs.jpg}
+
+
+<<eval=false>>=
+  source('../src/sens2_ews.R')
+library(ecodist)
+fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x <- x[1:12500,]
+x[x<0] <- 0
+x <- t(x)
+
+##Obtain equations
+
+
+@ 
+
+\section{3 Jul 2014}
+
+\textit{Foundations of Resilience Thinking}
+
+\begin{itemize}
+\item Resilience = size and steepness of attractor basins
+\item Distinguishes between: near equilibrium behavior and long term persistence
+\item Panarchy = Processes operating at different scales permit organization
+\end{itemize}
+
+\textit{How does NMDS treat mutual information?}
+
+<<eval=false>>=
+  source('../src/sens2_ews.R')
+library(ecodist)
+fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x <- x[1:12500,]
+x[x<0] <- 0
+x <- t(x)
+
+###kernel density information
+d1 <- density(x[1,])
+d2 <- density(x[2,])
+
+plot(density(x[1,])$x,density(x[3,])$x)
+points(-2:12,-2:12)
+
+###
+
+
+
+@ 
+
+
+\section{2 Jul 2014}
+
+Mutual Information for Time Series
+
+This is an attempt to implement methods from Moniz et al. (2007)
+Application of Information Theory Methods to Food Web Reconstruction
+
+<<eval=false>>=
+  source('../src/sens2_ews.R')
+library(entropy)
+library(vegan)
+library(ecodist)
+fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x <- x[1:12500,]
+x[x<0] <- 0
+x <- t(x)
+###
+## mid.m <- array(0,dim=c(nrow(x),nrow(x)))
+## for (i in 1:nrow(x)){
+##   for (j in 1:nrow(x)){
+##     mid.m[i,j] <- mi.Dirichlet(x[c(i,j),],0.5)
+##   }
+## }
+mid.m <- dget(file='../data/midm.rda')
+mid.m <- round(mid.m,7)
+pca <- princomp(as.dist(mid.m))
+nms <- nmds.min(nmds(as.dist(mid.m),2,2))
+plot(nms)
+plot(envfit(env=fps,ord=nms))
+envfit(env=fps,ord=nms)
+
+@ 
+
+<<eval=false>>=
+  library(entropy)
+y2d <- rbind( sample(1:100,100), sample(1:100,100) )
+y2d. = rbind( sample(1:100,100), sample(1:100,100) )
+test <- test. <- 0
+a <- seq(0,1,by=0.01)
+for (i in 1:length(a)){test[i] <- mi.Dirichlet(y2d,a=a[i])}
+for (i in 1:length(a)){test.[i] <- mi.Dirichlet(y2d.,a=a[i])}
+plot(test.~test);abline(lm(range(test.)~range(test)))
+
+@ 
+
+
+
+\section{1 Jul 2014}
+
+Reading Beltrami:
+
+<<eval=false>>=
+##For N. = rN
+##N(t) = N(0)e^rt
+
+N0 <- seq(0,100,by=0.1)
+t <- 0:100
+Nt <- sapply(N0, function(N0,t,r) N0*exp(r*t),t=t,r=2)
+plot(Nt[,1]~t,xlim=range(t),ylim=range(Nt),type='l',)
+for (i in 2:ncol(Nt)){lines(Nt[,i]~t)}
+plot(apply(Nt,2,max)~N0,type='l')
+plot(Nt[,ncol(Nt)]~t,xlim=range(t),ylim=range(Nt),type='l',)
+
+@ 
+
+\section{30 Jun 2014}
+
+
+
+<<eval=false>>=
+  library('nimble')
+
+@ 
+
+\section{27 Jun 2014}
+Alternative state detection?
+Should we be looking for break points?
+
+<<eval=false>>=
+source('../src/sens2_ews.R')
+  fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x <- x[1:12500,]
+x[x<0] <- 0
+###
+my.col <- rainbow(nlevels(factor(fps$Prey)))[as.numeric(factor(fps$Prey))]
+###
+cx <- x[,5]
+cx[cx<=0.03] <- 0
+plot(cx)
+abline(v=find.days(cx)$start)
+abline(v=find.days(cx)$end)
+days <- find.days(cx)
+x.days <- apply(x,2,function(x,d) x[d],d=sort(unlist(days)))
+x.cor <- list()
+for (k in 1:ncol(x)){
+  out <- 0
+  for (i in 1:(length(days)-1)){
+    d1 <- days[[i]]
+    d2 <- days[[(i+1)]]
+    xt <- x[d1[1:min(c(length(d1),length(d2)))],k]
+    xt1 <- x[d2[1:min(c(length(d1),length(d2)))],k]
+    out[i] <- cor(xt,xt1,method='k')
+  }
+  x.cor[[k]] <- out
+}
+
+plot(x.cor[[1]],type='l',ylim=c(-0.5,1),xlab='Day',col=my.col[[1]])
+for (i in 1:length(x.cor)){lines(x.cor[[i]],col=my.col[[i]])}
+
+
+###
+par(mfcol=c(2,1))
+i <- 1
+plot(density(x[,i]),main='',xlab=expression(O[2]),
+     xlim=range(x)+c(-1,1),ylim=c(0,1),col=my.col[i])
+for (i in 2:ncol(x)){
+  x.dens <- density(x[,i])
+  x.dens$y <- x.dens$y/max(x.dens$y)
+  x.dens$y <- x.dens$y+runif(1,-0.025,0.025)
+  lines(x.dens,col=my.col[i])
+}
+legend('topright',legend=levels(factor(fps$Prey)),lty=1,col=rainbow(nlevels(factor(fps$Prey))),title='Prey')
+##
+my.col <- rainbow(nlevels(factor(fps$Prey)))[as.numeric(factor(fps$Prey))]
+i <- 1
+plot(1:nrow(x)~x[,i],col=my.col[i],xlab=expression(O[2]),ylab='time',type='l')
+for (i in 2:ncol(x)){
+  lines(1:nrow(x)~x[,i],col=my.col[i],xlab=expression(O[2]),ylab='time',type='l')
+}
+
+###Calculate the correlation between days
+
+
+@ 
+
+
+
+\section{26 Jun 2014}
+- Sub-sample
+- Standardize, detrend and decycle
+- Euclidean distance
+- Plot of eigen values
+- PC plot
+- overlay vectors
+
+<<eval=false>>=
+library(vegan)
+library(ecodist)
+source('../src/sens2_ews.R')
+  fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+x <- x[1:12500,]
+x[x<0] <- 0
+###standardize, detrend and decycle
+sdd.x <- list()
+index <- apply(fps,1,function(x) paste(x[3:6],collapse=' '))
+cn <- (1:nrow(fps))[fps$Prey==0&index==paste(fps[1,3:6],collapse=' ')]
+for (i in 1:ncol(x)){
+  if (all(x[,i]==0)){sdd.x[[i]] <- NA}else{
+    cn <- (1:nrow(fps))[fps$Prey==0&index==paste(fps[i,3:6],collapse=' ')]  
+    sdd.x[[i]] <- sddSens(x[,i],x[,cn],eval=6250)
+  }
+}
+sdd.x <- do.call(cbind,sdd.x)
+sdd.x[is.na(sdd.x)] <- 0
+###ordinate
+sdd.d <- dist(t(sdd.x))
+hist(sdd.d)
+plot(hclust(sdd.d))
+##
+par(mfrow=c(1,3))
+plot(sdd.x[,1],xlab='time',ylab=expression(O[2]),ylim=c(-1,1),pch=19,cex=0.05)
+for (i in 1:ncol(sdd.x)){points(sdd.x[,i],pch=19,cex=0.05)}
+sdd.ord <- princomp(sdd.d)
+names(sdd.ord)
+plot(sdd.ord$sdev/sum(sdd.ord$sdev))
+abline(h=0.05,lty=2)
+plot(sdd.ord$scores[,1:2])
+plot(envfit(ord=sdd.ord$scores[,1:2],env=fps))
+###
+envfit(ord=sdd.ord$scores[,1:2],env=fps)
+envfit(ord=sdd.ord$scores[,2:3],env=fps)
+envfit(ord=sdd.ord$scores[,1:3],env=fps)
+pairs(fps)
+pairs(sdd.ord$scores[,1:3],pch=19,cex=1)
+par(mfrow=c(3,3))
+for (i in 1:3){
+  for (j in 1:3){
+    if (i==j){
+      plot(c(-1,1),c(-1,1),pch='',xlab='',ylab='',xaxt='n',yaxt='n')
+      text(c(0,0),c(0,0),labels=i,cex=5)
+    }else{
+      plot(sdd.ord$scores[,j:i],pch=19,cex=0.75)
+      plot(envfit(ord=sdd.ord$scores[,j:i],env=fps))
+  }
+  }
+}
+library(rgl)
+plot3d(sdd.ord$scores[,1:3],type='s',col=rainbow(nlevels(factor((fps$Prey))))[as.numeric(factor((fps$Prey)))])
+plot3d(sdd.ord$scores[,1:3],type='s',col=rainbow(nlevels(factor((fps$b))))[as.numeric(factor((fps$b)))])
+plot3d(sdd.ord$scores[,1:3],type='s',col=rainbow(nlevels(factor((fps$a))))[as.numeric(factor((fps$a)))])
+plot3d(sdd.ord$scores[,1:3],type='s',col=rainbow(nlevels(factor((fps$K))))[as.numeric(factor((fps$K)))])
+plot3d(sdd.ord$scores[,1:3],type='s',col=rainbow(nlevels(factor((fps$d))))[as.numeric(factor((fps$d)))])
+
+@ 
+
+\section{20 Jun 2014}
+
+Plot tests (ordination and smoothed-detrended-decycled) are up on
+github.
+
+EWS for simulations:
+
+- Write a script that will record the early warning signals for all
+180 simulations.
+
+<<eval=false>>=
+source('../src/sens2_ews.R')
+  fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+#x <- x[1000:5400,]
+x[x<0] <- 0
+###Isolate controls
+my.col <- rainbow(nlevels(factor(fps$Prey)))[as.numeric(factor(fps$Prey))]
+sdd.x <- list()
+index <- apply(fps,1,function(x) paste(x[3:6],collapse=' '))
+cn <- (1:nrow(fps))[fps$Prey==0&index==paste(fps[1,3:6],collapse=' ')]
+plot(sdd.x[[1]] <- sddSens(x[,1],x[,cn]),ylim=c(-1,1),pch=19,
+     cex=0.25,ylab=expression(O[2]),xlab='t',col=my.col[1])
+for (i in 1:ncol(x)){
+  if (all(x[,i]==0)){sdd.x[[i]] <- NA}else{
+    cn <- (1:nrow(fps))[fps$Prey==0&index==paste(fps[i,3:6],collapse=' ')]  
+    points(sdd.x[[i]] <- sddSens(x[,i],x[,cn]),pch=19,cex=0.25,col=my.col[i])
+  }
+}
+legend('topright',legend=unique(fps$Prey),col=rainbow(nlevels(factor(fps$Prey))),pch=19,title=expression(w[0]))
+###
+par(mfrow=c(1,2))
+plot(x[,1])
+plot(sdd.x[[1]])
+
+###
+my.col <- rainbow(nlevels(factor(fps$b)))[as.numeric(factor(fps$b))]
+sdd.x <- list()
+index <- apply(fps,1,function(x) paste(x[3:6],collapse=' '))
+cn <- (1:nrow(fps))[fps$Prey==0&index==paste(fps[1,3:6],collapse=' ')]
+plot(sdd.x[[1]] <- sddSens(x[,1],x[,cn]),ylim=c(-1,1),pch=19,
+     cex=0.25,ylab=expression(O[2]),xlab='t',col=my.col[1])
+for (i in 1:ncol(x)){
+  if (all(x[,i]==0)){sdd.x[[i]] <- NA}else{
+    cn <- (1:nrow(fps))[fps$Prey==0&index==paste(fps[i,3:6],collapse=' ')]  
+    points(sdd.x[[i]] <- sddSens(x[,i],x[,cn]),pch=19,cex=0.25,col=my.col[i])
+  }
+}
+legend('topright',legend=levels(factor(fps$b)),col=rainbow(nlevels(factor(fps$b))),pch=19,title='b')
+
+library(strucchange)
+
+
+@ 
+
+Look at the temporal correlation structure among simulations:
+
+<<eval=false>>=
+##Using the 100 min averages
+##Runs are in columns
+  fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+x <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+plot(x[,1],xlab='t',ylab=expression(O[2]),ylim=c(0,max(x)),type='l',lwd=0.5,col=rainbow(ncol(x))[1])
+for (i in 2:ncol(x)){
+  lines(1:nrow(x),x[,i],lwd=0.5,col=rainbow(ncol(x))[i])
+}
+abline(v=c(1000,5400))
+x <- x[1000:5400,]
+x[x<0] <- 0
+d.x <- dist(t(x))
+library(vegan)
+library(ecodist)
+eig.x <- eigen(d.x)
+biplot(princomp(d.x))
+vd.x <- vegdist(t(rbind(x,rep(1,ncol(x)))))
+nmds.x <- nmds(vd.x,2,2)
+envf.x <- envfit(env=fps,ord=nmds.min(nmds.x))
+plot(apply(nmds.min(nmds.x),2,jitter,factor=50),col=rainbow(ncol(x)))
+plot(envf.x)
+envf.x
+
+@ 
+
+\section{19 Jun 2014}
+
+Generate plots for the tipping_points2
+
+\begin{itemize}
+\item Model description is in SarrModel-20140709-AME.lyx
+\item Model was coded in mathematica (Pitcher_Plant_Threshold_Model.txt)
+\item Free parameter space for simulations is defined in parameters.csv
+  \subitem Note that the a and b terms for calculating w(t) are
+  coupled in order to keep the integral (i.e. the area under the
+  decomposition curve) equal across simulations
+\item Simulation output is in Raw_runs.csv, ten_min_average.csv, hundred_min_average.csv
+\item PAR to O2.docx describes the addition of the saturation function
+  to A(t)
+\end{itemize}
+
+<<eval=false>>=
+
+
+  ##free parameter space
+  fps <- read.csv('~/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/parameters.csv') 
+##Using the 100 min averages
+##Runs are in columns
+x <- read.csv('/Users/Aeolus/Dropbox/Tipping Point MS/Model sensitivity analysis and second paper/data/hundred_min_average.csv')
+x <- x[,-1]
+plot(x[,1],pch=19,cex=0.1)
+for (i in 2:ncol(x)){
+  points(1:length(x[,i]),x[,i],pch=19,cex=0.1)
+}
+
+par(mfrow=c(1,2))
+i <- 2
+plot(x[,i],pch=19,cex=0.1,col=rainbow(length(x[,i])))
+plot(x[2:length(x[,i]),i]~x[1:(length(x[,i])-1),i],pch=19,cex=0.1,col=rainbow(length(x[,i])))
+
+par(mfrow=c(1,2))
+for (i in 1:ncol(x)){
+  plot(x[,i],pch=19,cex=0.1,col=rainbow(length(x[,i])),
+       main=paste(paste(colnames(fps)[2:ncol(fps)],fps[i,2:ncol(fps)],sep='='),collapse=', '))
+  plot(x[2:length(x[,i]),i]~x[1:(length(x[,i])-1),i],pch=19,cex=0.1,col=rainbow(length(x[,i])),
+       main=paste(paste(colnames(fps)[2:ncol(fps)],fps[i,2:ncol(fps)],sep='='),collapse=', '))
+  play(x[,i]^3/max(x^3))
+  Sys.sleep(0.15)
+}
+
+@ 
+
+The pitcher plant respiration model:
+
+Terms:
+
+\begin{itemize}
+\item t = time
+\item x = oxygen
+\item A = environmental factor promoting oxygenation (i.e. PAR = light)
+\item f(w,x) = loss/decay of oxygen 
+\item g(x) = recovery of oxygen (augmented by mineralized nutrients)
+\item w = prey mass
+\end{itemize}
+
+\begin{equation}
+  \frac{dx}{dt}  = A - f(w,x) + g(x)
+\end{equation}
+
+\begin{equation}
+  x_{t+1} = a_t * sin(2 \pi f t) -  (m + a_t \frac{w_{t-1}}{K_w +
+    w_{t-1}}) + D_t(x_t,a^{\prime}_t)
+\end{equation}
+
+
+
+<<eval=false>>=
+  a0 <- 10
+f <- 1/1440
+t <- rep((1:1440),10)
+d <- rep(1:10,each=1440)
+A <- a0*sin(2*pi*f*t)
+A[t>720] <- 0
+plot(A,type='l',ylab=expression(O[2]))
+
+@ 
+
+\begin{equation}
+  w(t+1) = ae^{-bw_0t}
+\end{equation}
+
+Note that this is a correction from the printed version in PNAS
+
+<<eval=false>>=
+y <- NULL
+a <- 20
+##b
+
+for (i in 1:17){ y[i] <- 20*exp(-.1395*(i-1))}
+
+plot(c(0:16), y, xlim=c(0,16), ylim=c(0,20))
+
+par(list(pin=c(3,3),las=1))
+integrand <- function(x, a=4) {20*exp(-a*x)}
+plot(integrand, xlim=c(0,16), xlab="Days", ylab="Mass of prey remaining (mg)",
+                     lwd=2, col="red", font=2, font.lab=2)
+integrate(integrand, lower=0, upper=16)
+
+
+###
+a <- 20
+b <- 4
+e <- exp(1)
+w <- 75/1000
+
+for (t in 2:20){
+  w[t] <- exp(-w[t-1])
+}
+plot(w,type='l')
+
+@ 
+
+\begin{verbatim}
+Here is a link to the pitcher-plant tipping point dropbox. To
+start, go to ../Model sensitivity analysis and second paper/data/ and
+read the metadata.csv file. The various raw and average files are the
+ones to think about plotting. We can talk about it later today.
+\end{verbatim}
+
+\section{18 Jun 2014}
+
+Question: Are transitions between chaotic states detectable?
+
+Question: Are there classes of models that possess detectable chaotic
+transition warning signals?
+
+Modeling Issues:
+\begin{enumerate}
+\item a in S2.2 can be confused with a in S2.1
+\item What is the exponent in S2.2?
+\item Why is b (S2.2) in days rather than minutes?
+\item Why is w(t-1) used in S2.3?
+\end{enumerate}
+
+<<eval=false>>=
+  ##Initial stab at the spo2 model
+  a0 <- 10
+f <- 1/(60*24) #total minutes in a day
+t <- rep((1:(60*24)),11)
+At <- a0 * sin(2*pi*f*t)
+At[t>720] <- 0
+plot(At~I(1:length(t)),type='l')
+
+a <- 20
+b <- 4
+wt <- 20
+wt <- a*exp(1)^(-b*wt)
+
+spo2 <- function(x,a,f,t,m,w,Kw,s,d){
+  At <- a0 * sin(2*pi*f*t)
+  
+  
+}
+
+@ 
+
+
+
+\section{17 Jun 2014}
+
+Chatted with Aaron
+
+The data don't support a general pattern of alternative states.
+
+If systems are inherently chaotic or stochastic, then what?
+
+The data:
+\begin{itemize}
+\item Climate isn't stable
+\item Fossil records don't show stability
+\item Tropical systems don't show stability
+\item Even temperate systems break the rule of stability
+\end{itemize}
+
+Two goals:
+\begin{enumerate}
+\item Can we tell when we transition between states?
+\item Is there an alternative philosphy? Mathematical framework?
+\end{enumerate}
+
+Run simulation increasing r with variance over the chaos threshold
+
+<<eval=false>>=
+  ##hold ni constant
+  ##hold sd constant at 0.1
+  ##record r
+  ##record n
+  ##record ews
+  source('../src/unstable_states.R')
+library(earlywarnings)
+cb8.16 <- 2.57 #choatic boundary, 8-16 cycles
+ri <- (cb8.16)-(0.02/2)
+rf <- (cb8.16)+(0.02/2)
+dmc <- list()
+ews <- list()
+mcn <- 100
+for (i in 1:mcn){
+  print(i)
+  dmc[[i]] <- disrupt.mc(N=10,sd=0.01,ri=ri,rf=rf,dump=TRUE)
+  ews[[i]] <- generic_ews(dmc[[i]]$N)
+  dev.off()
+}
+## dput(dmc,'../results/dmc.out')
+## dput(ews,'../results/ews.out')
+###
+###
+###
+dmc <- dget('../results/dmc.out')
+ews <- dget('../results/ews.out')
+##
+yl <- apply(do.call(rbind,ews),2,min)
+yu <- apply(do.call(rbind,ews),2,max)
+##
+par(mfrow=c(2,(ncol(ews[[1]])-1)/2))
+for (i in 2:ncol(ews[[1]])){
+  for (j in 1:length(ews)){
+    if (j==1){
+      plot(ews[[j]][,i]~ews[[j]][,1],ylim=c(yl[i],yu[i]),
+           ylab=colnames(ews[[1]])[i],xlab='t',
+           type='l',lwd=0.25)
+    }else{
+      lines(ews[[j]][,i]~ews[[j]][,1],lwd=0.25)
+    }
+  }
+}
+###Average plots
+ews. <- do.call(rbind,ews)
+t <- do.call(rbind,dmc)$t
+r <- do.call(rbind,dmc)$r
+r. <- r
+r[r.>=cb8.16] <- 2
+r[r.<cb8.16] <- 1
+r <- r[t>=ews[[1]][,1][1]]
+#pairs(ews.,cex=0.05,pch=19,col=r)
+par(mfrow=c(1,1))
+plot(ews.[,c(3,4)],pch=19,col=r,cex=(0.01+(0.5*(ews.[,1]/max(ews.[,1])))))
+unique(ews.[ews.[,3]>30.15&ews.[,4]>0.185,1])
+ews. <- apply(ews.,2,function(x,t) tapply(x,t,mean),t=ews.[,1])
+pairs(ews.,cex=0.10,pch=19)
+
+@ 
+
+
+Reading Hastings
+Reading Sheffer
+Reading Dakos
+
+\section{16 Jun 2014}
+
+\begin{itemize}
+\item the distribution of the average of r is uniform
+\item ensemble distribution is normal
+\item EWS stats not correlated between 8to16 and 16to8
+\item Phase (Ni to Nf) spaces for EWS correlations 
+\item EWS stats intercorrelations show correlations and break points
+\end{itemize}
+
+<<eval=false>>=
+###Run repeated simulations for ews time series
+source('../src/unstable_states.R')
+library(earlywarnings)
+cb8.16 <- 2.57 #choatic boundary, 8-16 cycles
+ri <- (cb8.16)-(0.02/2)
+rf <- (cb8.16)+(0.02/2)
+##Visualizing the error in r
+r8.16 <- list()
+r16.8 <- list()
+for (i in 1:138){
+  print(i)
+  r8.16[[i]] <- disrupt.mc(N=i,sd=0.01,ri=ri,rf=rf,dump=TRUE)$r
+  r16.8[[i]] <- disrupt.mc(N=i,sd=0.01,ri=rf,rf=ri,dump=TRUE)$r
+}
+rmu8.16 <- apply(do.call(rbind,r8.16),2,mean)
+rmu16.8 <- apply(do.call(rbind,r16.8),2,mean)
+par(mfrow=c(1,2))
+plot(density(rmu8.16),main='',xlab='r')
+for (i in 1:length(r8.16)){
+  lines(density(r8.16[[i]]),col='grey',lwd=0.5)
+}
+abline(v=cb8.16,lty=2);abline(v=mean(rmu8.16),lty=2,col='darkgrey')
+plot(density(rmu16.8),xlab='r',main='')
+for (i in 1:length(r16.8)){
+  lines(density(r16.8[[i]]),col='grey',lwd=0.5)
+}
+abline(v=cb8.16,lty=2);abline(v=mean(rmu16.8),lty=2,col='darkgrey')
+###Determine average threshold
+##What is the point at which rbar has crossed the threshold?
+##Directionality depends on direction of r
+rt8.16 <- (1:length(rmu8.16))[rmu8.16>=cb8.16][1]
+rt16.8 <- (1:length(rmu16.8))[rmu16.8<=cb8.16][1]
+rt8.16
+rt16.8
+
+###EWS stats
+stats8.16 <- dget(file='../results/stats816.rdata')
+stats16.8 <- dget(file='../results/stats168.rdata')
+###
+stats8.16 <- na.omit(do.call(rbind,stats8.16))
+stats16.8 <- na.omit(do.call(rbind,stats16.8))
+###
+stats8.16 <- stats8.16[1:min(c(nrow(stats8.16),nrow(stats16.8))),]
+stats16.8 <- stats16.8[1:min(c(nrow(stats8.16),nrow(stats16.8))),]
+###
+par(mfrow=c(2,ncol(stats8.16)/2),
+    mai=c(0.25,0.01,0.25,0.01))
+for (i in 1:ncol(stats8.16)){
+  plot(density(stats8.16[,i]),
+       main=colnames(stats8.16)[i],
+       xlim=c(min(c(stats8.16[,i],stats16.8[,i])),
+         max(c(stats8.16[,i],stats16.8[,i]))),
+       xaxt='n',yaxt='n',bty='n')
+  lines(density(stats16.8[,i]),lty=2)
+}
+###
+par(mfrow=c(2,ncol(stats16.8)/2))
+for (i in 1:ncol(stats8.16)){
+  plot(stats16.8[,i]~stats8.16[,i],
+       xlab=paste(colnames(stats8.16)[i],'8.16'),
+       ylab=paste(colnames(stats16.8)[i],'16.8'))
+  abline(lm(stats16.8[,i]~stats8.16[,i]))
+}
+
+###
+par(mfrow=c(4,ncol(stats8.16)/2),
+    mai=c(0,0,0,0))
+for (i in 1:ncol(stats8.16)){
+  plot(stats8.16[1:(nrow(stats8.16)-1),i]~stats8.16[2:(nrow(stats8.16)),i],
+       type='l',xaxt='n',yaxt='n',bty='n')
+}
+for (i in 1:ncol(stats16.8)){
+  plot(stats16.8[1:(nrow(stats16.8)-1),i]~stats16.8[2:(nrow(stats16.8)),i],
+       type='l',col='darkgrey',xaxt='n',yaxt='n',bty='n')
+}
+###Ensemble N~stats
+pairs(data.frame(Ni=(1:nrow(stats8.16)),stats8.16),pch=19,cex=0.10,col='black')
+pairs(data.frame(Ni=(1:nrow(stats16.8)),stats16.8),cex=0.10,col='black')
+
+@ 
+
+<<eval=false>>=
+library(earlywarnings)
+set.seed(1)
+drmc8.16 <- disrupt.mc(sd=0.01,ri=ri,rf=rf,dump=TRUE)
+set.seed(1)
+drmc16.8 <- disrupt.mc(sd=0.01,ri=rf,rf=ri,dump=TRUE)
+ews8.16 <- generic_ews(drmc8.16$N)
+ews16.8 <- generic_ews(drmc16.8$N)
+
+stats8.16 <- cor(ews8.16,method='ken')
+stats16.8 <- cor(ews8.16,method='ken')
+
+
+@ 
+
+<<eval=false>>=
+  ##Re-doing noise in r shifting up and down across 8-16
+source('../src/unstable_states.R')
+cb8.16 <- 2.57 #choatic boundary, 8-16 cycles
+ri <- (cb8.16)-(0.02/2)
+rf <- (cb8.16)+(0.02/2)
+set.seed(1)
+drmc8.16 <- disrupt.mc(sd=0.01,ri=ri,rf=rf,dump=TRUE)
+set.seed(1)
+drmc16.8 <- disrupt.mc(sd=0.01,ri=rf,rf=ri,dump=TRUE)
+par(mfrow=c(3,2))
+plot(drmc8.16$r,xlab='time',ylab='r')
+abline(h=cb8.16,col=2)
+plot(drmc16.8$r,xlab='time',ylab='r')
+abline(h=cb8.16,col=2)
+plot(drmc16.8$N,xlab='time',ylab='N')
+plot(drmc8.16$N,xlab='time',ylab='N')
+plot(drmc16.8$N~drmc16.8$r,xlab='r',ylab='N',type='l')
+plot(drmc8.16$N~drmc8.16$r,xlab='r',ylab='N',type='l')
+###Phase space
+par(mfrow=c(1,2))
+                                        #plus n time steps
+for (n in 25:50){
+  plot(drmc16.8$N[(1:(length(drmc16.8$N)-n))],drmc16.8$N[((n+1):(length(drmc16.8$N)))],
+       xlab='N',ylab='N+1',type='l')
+  plot(drmc8.16$N[(1:(length(drmc8.16$N)-n))],drmc8.16$N[((n+1):(length(drmc8.16$N)))],
+       xlab='N',ylab='N+1',type='l')
+}
+
+#EWS
+library(earlywarnings)
+ews8.16 <- generic_ews(drmc8.16$N)
+ews16.8 <- generic_ews(drmc16.8$N)
+
+@ 
+
+Summary to date (going back in time):
+
+\begin{itemize}
+\item At the 8-16 cycle threshold, error in r leads to early, sudden shifts
+\item Slow ramping can also be seen visually
+\item Sudden jumps across cycle boundaries can be seen visually
+\end{itemize}
+
 
 
 %% %%Activate for bibtex vibliography

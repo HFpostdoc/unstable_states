@@ -22,3 +22,4 @@ unstable_states
 - convergent cross mapping
 - introducing dynamics
 - evolutionary dynamics (community genetics)
+- maximizing entropy
